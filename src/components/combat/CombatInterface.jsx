@@ -4,158 +4,217 @@ import Card from '../common/Card';
 import '../../styles/CombatInterface.css';
 
 const CombatInterface = ({ combat, character, encounter }) => {
-  const { performCombatAction } = useGame();
-  
+  const { performCombatAction, useItem } = useGame();
   const [selectedEnemy, setSelectedEnemy] = useState(null);
-  const [selectedAction, setSelectedAction] = useState('attack');
-  const [combatMessage, setCombatMessage] = useState('');
-  const [actionResult, setActionResult] = useState(null);
+  const [selectedAction, setSelectedAction] = useState('attack'); // 'attack', 'item', 'flee'
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [combatLog, setCombatLog] = useState([]);
+  const [showInventory, setShowInventory] = useState(false);
   
-  // Clear any selection when combat state changes
+  // Update combat log when combat state changes
   useEffect(() => {
-    setSelectedEnemy(null);
-    setActionResult(null);
-  }, [combat]);
-  
-  // Set default selected enemy
-  useEffect(() => {
-    if (combat && combat.enemies && combat.enemies.length > 0 && !selectedEnemy) {
-      // Find first enemy that's still alive
-      const firstLivingEnemy = combat.enemies.find(enemy => enemy.health > 0);
-      if (firstLivingEnemy) {
-        setSelectedEnemy(firstLivingEnemy.id);
-      }
+    if (combat && combat.log) {
+      setCombatLog(combat.log);
     }
-  }, [combat, selectedEnemy]);
+  }, [combat]);
   
   if (!combat || !character || !encounter) {
     return <div className="loading">Loading combat data...</div>;
   }
   
-  // Handle enemy selection
-  const handleSelectEnemy = (enemyId) => {
-    setSelectedEnemy(enemyId);
+  // Get player turn status
+  const isPlayerTurn = combat.turn === 'player';
+  const currentTurn = isPlayerTurn ? 'Your turn' : 'Enemy turn';
+  
+  // Calculate character health percentage for health bar
+  const characterHealthPercent = Math.round((combat.player.health / combat.player.maxHealth) * 100);
+  
+  // Get usable items (consumables)
+  const usableItems = character.inventory.filter(item => 
+    item.type === 'consumable' && item.subtype === 'potion'
+  );
+  
+  // Handle selecting an enemy
+  const handleSelectEnemy = (enemy) => {
+    if (isPlayerTurn && selectedAction === 'attack') {
+      setSelectedEnemy(enemy);
+    }
   };
   
-  // Handle action selection
+  // Handle selecting an action
   const handleSelectAction = (action) => {
     setSelectedAction(action);
+    setSelectedEnemy(null); // Reset enemy selection
+    setSelectedItem(null); // Reset item selection
+    
+    // Show inventory if items selected
+    setShowInventory(action === 'item');
+  };
+  
+  // Handle selecting an item
+  const handleSelectItem = (item) => {
+    setSelectedItem(item);
+    setShowInventory(false);
   };
   
   // Handle performing an action
   const handlePerformAction = () => {
-    if (!selectedAction) {
-      setCombatMessage('Please select an action.');
-      return;
-    }
+    if (!isPlayerTurn) return;
     
-    if (selectedAction === 'attack' && !selectedEnemy) {
-      setCombatMessage('Please select a target.');
-      return;
+    switch (selectedAction) {
+      case 'attack':
+        if (!selectedEnemy) {
+          alert('Select an enemy to attack!');
+          return;
+        }
+        performCombatAction('attack', selectedEnemy.id);
+        break;
+        
+      case 'item':
+        if (!selectedItem) {
+          alert('Select an item to use!');
+          return;
+        }
+        performCombatAction('use_item', selectedItem.id);
+        // Reset selection
+        setSelectedItem(null);
+        setSelectedAction('attack');
+        break;
+        
+      case 'flee':
+        performCombatAction('flee');
+        break;
+        
+      default:
+        break;
     }
-    
-    // Process the combat action
-    const result = performCombatAction(selectedAction, selectedEnemy);
-    if (result) {
-      setActionResult(result.actionResult);
+  };
+  
+  // Auto-trigger enemy actions
+  useEffect(() => {
+    if (!isPlayerTurn && combat.status === 'active') {
+      // Add a small delay for better user experience
+      const enemyActionTimer = setTimeout(() => {
+        performCombatAction('enemy_attack');
+      }, 1500);
       
-      // Clear the message after a few seconds
-      setTimeout(() => {
-        setActionResult(null);
-      }, 3000);
+      return () => clearTimeout(enemyActionTimer);
     }
-  };
+  }, [combat.turn, combat.status, performCombatAction, isPlayerTurn]);
   
-  // Check if it's the player's turn
-  const isPlayerTurn = combat.turn === 'player';
-  
-  // Get the current round and active combatant
-  const currentRound = combat.round;
-  const activeEnemy = combat.turn === 'enemy' ? 
-    combat.enemies.find(enemy => enemy.id === combat.currentTurnId) : null;
-  
-  // Format health as percentage for health bars
-  const getHealthPercentage = (current, max) => {
-    return Math.round((current / max) * 100);
-  };
-  
-  // Get appropriate health bar color
-  const getHealthColor = (percentage) => {
-    if (percentage <= 25) return 'critical';
-    if (percentage <= 50) return 'low';
-    if (percentage <= 75) return 'medium';
+  // Get health bar color based on percentage
+  const getHealthColor = (percent) => {
+    if (percent <= 25) return 'critical';
+    if (percent <= 50) return 'low';
+    if (percent <= 75) return 'medium';
     return 'good';
   };
-  
-  // Calculate remaining enemies
-  const livingEnemies = combat.enemies.filter(enemy => enemy.health > 0);
   
   return (
     <div className="combat-interface">
       <div className="combat-header">
-        <h2>Combat</h2>
-        <div className="combat-info">
-          <span className="round-indicator">Round {currentRound}</span>
-          <span className="turn-indicator">
-            {isPlayerTurn ? 'Your Turn' : `Enemy's Turn (${activeEnemy?.name || 'Unknown'})`}
-          </span>
+        <div className="combat-title">
+          <h2>Combat</h2>
+          <div className="combat-status">
+            Round {combat.round} - {currentTurn}
+          </div>
+        </div>
+        
+        {/* Card display */}
+        <div className="encounter-card">
+          <Card 
+            suit={encounter.cardDraw.suit} 
+            rank={encounter.cardDraw.rank} 
+            size="small" 
+          />
         </div>
       </div>
       
-      <div className="combat-card">
-        <Card 
-          suit={encounter.cardDraw.suit} 
-          rank={encounter.cardDraw.rank} 
-          size="small" 
-        />
-      </div>
-      
-      <div className="combat-encounter-info">
-        <h3>{encounter.data.name}</h3>
-        <p>{encounter.data.description}</p>
-      </div>
-      
-      <div className="combat-arena">
-        {/* Player information */}
-        <div className="player-section">
-          <div className="player-info">
-            <h3>{character.name}</h3>
-            <div className="health-display">
+      <div className="combat-content">
+        <div className="combat-area">
+          {/* Player section */}
+          <div className="player-section">
+            <div className="player-name">{character.name}</div>
+            <div className="player-health">
               <div className="health-label">
-                <span>HP</span>
-                <span>{combat.player.health}/{character.maxHealth}</span>
+                HP: {combat.player.health}/{character.maxHealth}
               </div>
               <div className="health-bar-background">
                 <div 
-                  className={`health-bar-fill ${getHealthColor(getHealthPercentage(combat.player.health, character.maxHealth))}`}
-                  style={{ width: `${getHealthPercentage(combat.player.health, character.maxHealth)}%` }}
+                  className={`health-bar-fill ${getHealthColor(characterHealthPercent)}`}
+                  style={{ width: `${characterHealthPercent}%` }}
                 ></div>
               </div>
             </div>
           </div>
           
-          {/* Combat log */}
-          <div className="combat-log">
-            <h4>Combat Log</h4>
-            <div className="log-messages">
-              {combat.log.slice(-5).map((log, index) => (
-                <div key={index} className="log-message">
-                  <span className="log-round">R{log.round}</span>
-                  <span className="log-text">{log.message}</span>
-                </div>
-              ))}
-              {actionResult && (
-                <div className="action-result">
-                  {actionResult.message}
+          {/* Enemy section */}
+          <div className="enemies-section">
+            <h3>Enemies</h3>
+            <div className="enemy-list">
+              {combat.enemies.map((enemy, index) => {
+                // Skip rendering defeated enemies
+                if (enemy.health <= 0) return null;
+                
+                // Calculate health percentage
+                const healthPercent = Math.round((enemy.health / enemy.maxHealth) * 100);
+                
+                return (
+                  <div 
+                    key={enemy.id}
+                    className={`enemy-card ${selectedEnemy?.id === enemy.id ? 'selected' : ''}`}
+                    onClick={() => handleSelectEnemy(enemy)}
+                  >
+                    <div className="enemy-header">
+                      <div className="enemy-name">
+                        {enemy.name} {index + 1}
+                        {combat.currentTurnId === enemy.id && (
+                          <span className="current-turn-indicator"> ⟲</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="enemy-health">
+                      <div className="health-label">
+                        HP: {enemy.health}/{enemy.maxHealth}
+                      </div>
+                      <div className="health-bar-background">
+                        <div 
+                          className={`health-bar-fill ${getHealthColor(healthPercent)}`}
+                          style={{ width: `${healthPercent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Show message if all enemies are defeated */}
+              {combat.enemies.every(enemy => enemy.health <= 0) && (
+                <div className="all-defeated-message">
+                  All enemies have been defeated!
                 </div>
               )}
             </div>
           </div>
-          
-          {/* Player actions */}
-          {isPlayerTurn && (
-            <div className="player-actions">
-              <h4>Actions</h4>
+        </div>
+        
+        {/* Combat log */}
+        <div className="combat-log">
+          <h3>Combat Log</h3>
+          <div className="log-entries">
+            {combatLog.map((entry, index) => (
+              <div key={index} className="log-entry">
+                <span className="log-round">Round {entry.round}:</span>
+                <span className="log-message">{entry.message}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Combat actions */}
+        <div className="combat-actions">
+          {isPlayerTurn ? (
+            <>
               <div className="action-buttons">
                 <button 
                   className={`action-button ${selectedAction === 'attack' ? 'selected' : ''}`}
@@ -164,8 +223,9 @@ const CombatInterface = ({ combat, character, encounter }) => {
                   Attack
                 </button>
                 <button 
-                  className={`action-button ${selectedAction === 'use_item' ? 'selected' : ''}`}
-                  onClick={() => handleSelectAction('use_item')}
+                  className={`action-button ${selectedAction === 'item' ? 'selected' : ''}`}
+                  onClick={() => handleSelectAction('item')}
+                  disabled={usableItems.length === 0}
                 >
                   Use Item
                 </button>
@@ -177,142 +237,115 @@ const CombatInterface = ({ combat, character, encounter }) => {
                 </button>
               </div>
               
-              {/* Target selection for attack */}
-              {selectedAction === 'attack' && livingEnemies.length > 0 && (
-                <div className="target-selection">
-                  <h4>Select Target</h4>
-                  <div className="target-buttons">
-                    {livingEnemies.map(enemy => (
-                      <button 
-                        key={enemy.id}
-                        className={`target-button ${selectedEnemy === enemy.id ? 'selected' : ''}`}
-                        onClick={() => handleSelectEnemy(enemy.id)}
-                      >
-                        {enemy.name}
-                        <span className="target-health">
-                          {enemy.health}/{enemy.maxHealth} HP
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Action instructions */}
+              <div className="action-instructions">
+                {selectedAction === 'attack' && (
+                  <div>Select an enemy to attack</div>
+                )}
+                {selectedAction === 'item' && selectedItem && (
+                  <div>Using: {selectedItem.name}</div>
+                )}
+                {selectedAction === 'flee' && (
+                  <div>Attempt to flee combat (not guaranteed)</div>
+                )}
+              </div>
               
-              {/* Item selection for use_item */}
-              {selectedAction === 'use_item' && (
-                <div className="item-selection">
-                  <h4>Select Item</h4>
-                  <div className="usable-items">
-                    {character.inventory && character.inventory.filter(item => 
-                      item.type === 'consumable'
-                    ).length > 0 ? (
-                      character.inventory.filter(item => 
-                        item.type === 'consumable'
-                      ).map(item => (
-                        <button 
-                          key={item.id}
-                          className="item-button"
-                          onClick={() => {
-                            performCombatAction('use_item', item.id);
-                          }}
-                        >
-                          {item.name}
-                          {item.effects.healing && 
-                            <span className="item-effect">
-                              Healing: {item.effects.healing}
-                            </span>
-                          }
-                        </button>
-                      ))
-                    ) : (
-                      <p className="no-items">No usable items in inventory.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Confirm action button */}
-              {((selectedAction === 'attack' && selectedEnemy) || 
-                selectedAction === 'flee') && (
-                <button 
-                  className="perform-action-button"
-                  onClick={handlePerformAction}
-                >
-                  {selectedAction === 'attack' ? 'Attack!' : 'Attempt to Flee'}
-                </button>
-              )}
-              
-              {combatMessage && (
-                <div className="combat-message">
-                  {combatMessage}
-                </div>
-              )}
+              {/* Perform button */}
+              <button 
+                className="perform-button"
+                onClick={handlePerformAction}
+                disabled={
+                  (selectedAction === 'attack' && !selectedEnemy) ||
+                  (selectedAction === 'item' && !selectedItem)
+                }
+              >
+                {selectedAction === 'attack' ? 'Attack!' : 
+                 selectedAction === 'item' ? 'Use Item' : 'Attempt to Flee'}
+              </button>
+            </>
+          ) : (
+            <div className="enemy-turn-message">
+              Enemy is taking their turn...
             </div>
           )}
         </div>
-        
-        {/* Enemies section */}
-        <div className="enemies-section">
-          <h3>Enemies</h3>
-          <div className="enemy-list">
-            {combat.enemies.map(enemy => (
-              <div 
-                key={enemy.id} 
-                className={`enemy-card ${enemy.health <= 0 ? 'defeated' : ''} ${
-                  activeEnemy?.id === enemy.id ? 'active' : ''
-                }`}
-                onClick={() => enemy.health > 0 && handleSelectEnemy(enemy.id)}
-              >
-                <div className="enemy-info">
-                  <div className="enemy-name">
-                    {enemy.name}
-                    {enemy.health <= 0 && <span className="defeated-label">Defeated</span>}
-                  </div>
-                  
-                  <div className="health-display">
-                    <div className="health-label">
-                      <span>HP</span>
-                      <span>{enemy.health}/{enemy.maxHealth}</span>
-                    </div>
-                    <div className="health-bar-background">
-                      <div 
-                        className={`health-bar-fill ${getHealthColor(getHealthPercentage(enemy.health, enemy.maxHealth))}`}
-                        style={{ width: `${getHealthPercentage(enemy.health, enemy.maxHealth)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Visual indicator for selected enemy */}
-                {selectedEnemy === enemy.id && enemy.health > 0 && (
-                  <div className="selected-indicator">Target</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       
-      {/* Combat status */}
-      <div className="combat-status">
-        {combat.status === 'victory' && (
-          <div className="victory-message">
-            Victory! You have defeated all enemies.
+      {/* Item inventory overlay */}
+      {showInventory && (
+        <div className="inventory-overlay">
+          <div className="inventory-panel">
+            <h3>Select an Item to Use</h3>
+            
+            {usableItems.length > 0 ? (
+              <div className="usable-items-list">
+                {usableItems.map(item => (
+                  <div 
+                    key={item.id}
+                    className="usable-item"
+                    onClick={() => handleSelectItem(item)}
+                  >
+                    <div className="item-name">{item.name}</div>
+                    <div className="item-description">{item.description}</div>
+                    {item.effects.healing && (
+                      <div className="item-effect">Heals for {item.effects.healing} HP</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-items-message">
+                No usable items in inventory
+              </div>
+            )}
+            
+            <button 
+              className="close-inventory-button"
+              onClick={() => {
+                setShowInventory(false);
+                setSelectedAction('attack');
+              }}
+            >
+              Cancel
+            </button>
           </div>
-        )}
-        
-        {combat.status === 'defeat' && (
-          <div className="defeat-message">
-            Defeat! You have been defeated in combat.
+        </div>
+      )}
+      
+      {/* Combat result overlay */}
+      {combat.status !== 'active' && (
+        <div className="combat-result-overlay">
+          <div className="result-panel">
+            <h2>
+              {combat.status === 'victory' ? 'Victory!' : 
+               combat.status === 'defeat' ? 'Defeat!' : 'Escaped!'}
+            </h2>
+            
+            <p>
+              {combat.status === 'victory' 
+                ? 'You have defeated all enemies!' 
+                : combat.status === 'defeat'
+                ? 'You have been defeated in combat.'
+                : 'You have successfully fled from combat.'}
+            </p>
+            
+            {/* Show any rewards if victorious */}
+            {combat.status === 'victory' && encounter.outcome?.loot && (
+              <div className="combat-rewards">
+                <h3>Rewards</h3>
+                <div className="loot-item">
+                  <div className="loot-name">{encounter.outcome.loot.name}</div>
+                  <div className="loot-description">{encounter.outcome.loot.description}</div>
+                </div>
+              </div>
+            )}
+            
+            <button className="continue-button">
+              Continue
+            </button>
           </div>
-        )}
-        
-        {combat.status === 'fled' && (
-          <div className="fled-message">
-            You have successfully fled from combat.
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
