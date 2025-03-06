@@ -1,0 +1,111 @@
+.map-container {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.map-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.map-row {
+  display: flex;
+}
+
+.map-tile {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.map-tile:hover {
+  transform: scale(1.1);
+  z-index: 1;
+}
+
+.tile-unknown {
+  background-color: #e0e0e0;
+}
+
+.tile-current {
+  border: 2px solid #000;
+  font-weight: bold;
+}
+
+.tile-current.arid {
+  background-color: #f9d59c;
+}
+
+.tile-current.water {
+  background-color: #a8d5ff;
+}
+
+.tile-current.forest {
+  background-color: #a5d6a7;
+}
+
+.tile-current.mountain {
+  background-color: #b0bec5;
+}
+
+.tile-current.unknown {
+  background-color: #e0e0e0;
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.legend-marker {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  border: 1px solid #ccc;
+}
+
+.legend-marker.current {
+  border: 2px solid #000;
+  background-color: #e0e0e0;
+}
+
+.legend-marker.arid {
+  background-color: #f9d59c;
+}
+
+.legend-marker.water {
+  background-color: #a8d5ff;
+}
+
+.legend-marker.forest {
+  background-color: #a5d6a7;
+}
+
+.legend-marker.mountain {
+  background-color: #b0bec5;
+}
