@@ -1,0 +1,132 @@
+.character-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  background-color: white;
+  height: 100%;
+}
+
+.character-card:hover:not(.dead) {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  padding: 15px;
+}
+
+.character-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.character-icon {
+  font-size: 1.8rem;
+  margin-right: 10px;
+  color: #444;
+}
+
+.character-title {
+  flex: 1;
+}
+
+.character-title h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.character-subtitle {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0;
+}
+
+.character-stats {
+  margin-bottom: 10px;
+}
+
+.health-container, .xp-container {
+  margin-bottom: 8px;
+}
+
+.health-label, .xp-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 3px;
+}
+
+.health-bar-background, .xp-bar-background {
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.health-bar-fill.good {
+  background-color: #4caf50;
+}
+
+.health-bar-fill.medium {
+  background-color: #ff9800;
+}
+
+.health-bar-fill.low {
+  background-color: #ff5722;
+}
+
+.health-bar-fill.critical {
+  background-color: #f44336;
+}
+
+.xp-bar-fill {
+  background-color: #2196f3;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.character-location {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.select-prompt {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #2196f3;
+}
+
+.dead-notice {
+  text-align: center;
+  background-color: #ffebee;
+  color: #b71c1c;
+  padding: 5px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin: 5px 0;
+}
+
+/* Dead character styling */
+.character-card.dead {
+  opacity: 0.7;
+  filter: grayscale(0.8);
+  cursor: default;
+}
