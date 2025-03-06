@@ -1,0 +1,170 @@
+.world-map-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.map-controls button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.map-controls button:hover {
+  background-color: #e0e0e0;
+}
+
+.horizontal-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.map-grid-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  overflow: auto;
+  max-height: 400px;
+}
+
+.map-grid {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  background-color: #e0e0e0;
+}
+
+.map-row {
+  display: flex;
+}
+
+.map-tile {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.map-tile:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+.map-tile.current-position {
+  border: 2px solid #000;
+  z-index: 5;
+}
+
+.map-tile.adjacent {
+  border: 2px dashed #555;
+}
+
+.tile-content {
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.tile-coordinates {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.6rem;
+  color: #999;
+}
+
+/* Tile types */
+.tile-unknown {
+  background-color: #f0f0f0;
+}
+
+.tile-unexplored {
+  background-color: rgba(240, 240, 240, 0.7);
+}
+
+.tile-arid {
+  background-color: #f9d59c;
+}
+
+.tile-water {
+  background-color: #a8d5ff;
+}
+
+.tile-forest {
+  background-color: #a5d6a7;
+}
+
+.tile-mountain {
+  background-color: #b0bec5;
+}
+
+.tile-threat {
+  background-color: #ffcdd2;
+}
+
+/* Legend */
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  font-size: 0.8rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.legend-icon {
+  margin-right: 5px;
+  font-size: 1rem;
+}
+
+.tile-sample {
+  width: 15px;
+  height: 15px;
+  border: 1px solid #ccc;
+  margin-right: 5px;
+}
+
+.legend-label {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .map-tile {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+  
+  .map-legend {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
