@@ -1,31 +1,45 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useGame } from '../contexts/GameContext';
-import CharacterCard from '../components/character/CharacterCard';
-import '../styles/CharacterSelectionPage.css';
+import Card from '../components/common/Card';
+import '../styles/CharacterCreationPage.css';
 
-const CharacterSelectionPage = () => {
+const CharacterCreationPage = () => {
   const { worldId } = useParams();
   const navigate = useNavigate();
   const { 
     loadWorld, 
-    switchCharacter, 
+    createCharacter, 
     gameState, 
     loading, 
     error 
   } = useGame();
   
-  // Load world data on mount
+  const [characterName, setCharacterName] = useState('');
+  const [characterClass, setCharacterClass] = useState('');
+  const [characterRace, setCharacterRace] = useState('');
+  const [showCards, setShowCards] = useState(true);
+  
+  // Load world data on mount if needed
   useEffect(() => {
     if (!gameState || gameState.id !== worldId) {
       loadWorld(worldId);
     }
   }, [worldId, gameState, loadWorld]);
   
-  // Handle character selection
-  const handleSelectCharacter = (characterId) => {
-    switchCharacter(characterId);
-    navigate(`/worlds/${worldId}/play`);
+  // Handle character creation
+  const handleCreateCharacter = (e) => {
+    e.preventDefault();
+    
+    if (!characterName.trim()) {
+      alert('Please enter a character name');
+      return;
+    }
+    
+    const newCharacter = createCharacter(worldId, characterName);
+    if (newCharacter) {
+      navigate(`/worlds/${worldId}/play`);
+    }
   };
   
   if (loading) {
@@ -40,54 +54,75 @@ const CharacterSelectionPage = () => {
     return <div className="error-message">World not found</div>;
   }
   
-  // Sort characters by level (highest first) then by creation date (newest first)
-  const sortedCharacters = [...gameState.characters].sort((a, b) => {
-    if (b.level !== a.level) return b.level - a.level;
-    return new Date(b.created) - new Date(a.created);
-  });
+  // These cards are just for visual display
+  const mockCards = {
+    race: { suit: 'hearts', rank: 'ace' },
+    class: { suit: 'diamonds', rank: 'king' }
+  };
   
   return (
-    <div className="character-selection-page">
-      <div className="character-selection-container">
-        <h1>Choose Your Character</h1>
-        <p className="world-name">World: {gameState.name}</p>
+    <div className="character-creation-page">
+      <div className="character-creation-container">
+        <h1>Create Your Character</h1>
+        <p className="world-info">World: {gameState.name}</p>
         
-        <div className="character-list">
-          {sortedCharacters.length > 0 ? (
-            sortedCharacters.map(character => (
-              <CharacterCard
-                key={character.id}
-                character={character}
-                onClick={() => handleSelectCharacter(character.id)}
-              />
-            ))
-          ) : (
-            <p className="no-characters">No characters found in this world.</p>
-          )}
-          
-          <div className="create-new-character">
-            <Link 
-              to={`/worlds/${worldId}/characters/new`}
-              className="create-character-button"
-            >
-              <div className="character-card new-character">
-                <div className="card-content">
-                  <div className="new-character-icon">+</div>
-                  <h3>Create New Character</h3>
-                </div>
+        {showCards && (
+          <div className="character-card-draw">
+            <div className="card-draw-info">
+              <h3>Card Draw</h3>
+              <p>In Card RPG, your character's race and class are determined by the cards you draw.</p>
+            </div>
+            
+            <div className="card-display">
+              <div className="card-section">
+                <h4>Race Card</h4>
+                <Card suit={mockCards.race.suit} rank={mockCards.race.rank} size="large" />
+                <p>This determines your character's race</p>
               </div>
-            </Link>
+              
+              <div className="card-section">
+                <h4>Class Card</h4>
+                <Card suit={mockCards.class.suit} rank={mockCards.class.rank} size="large" />
+                <p>This determines your character's class</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
         
-        <div className="back-button-container">
-          <Link to="/worlds" className="back-button">
-            Back to World Selection
-          </Link>
-        </div>
+        <form onSubmit={handleCreateCharacter} className="character-form">
+          <div className="form-group">
+            <label htmlFor="characterName">Character Name:</label>
+            <input
+              type="text"
+              id="characterName"
+              value={characterName}
+              onChange={(e) => setCharacterName(e.target.value)}
+              placeholder="Enter character name"
+              required
+            />
+          </div>
+          
+          <p className="creation-note">
+            When you create your character, cards will be drawn to determine your race and class.
+            Your starting equipment and abilities will be based on these cards.
+          </p>
+          
+          <div className="form-actions">
+            <Link to={`/worlds/${worldId}/characters`} className="cancel-button">
+              Cancel
+            </Link>
+            <button 
+              type="submit" 
+              className="create-button primary-button"
+              disabled={loading}
+            >
+              {loading ? 'Creating...' : 'Create Character & Begin'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default CharacterSelectionPage;
+export default CharacterCreationPage;
