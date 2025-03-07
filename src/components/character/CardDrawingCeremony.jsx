@@ -530,151 +530,156 @@ const CardDrawingCeremony = ({ drawCards, onComplete }) => {
         </div>
       )}
       
-{currentStep === 'class-draw' && (
-  <div className="ceremony-step draw-step">
-    <h2>Draw Your Class Card</h2>
-    <p>The second draw will determine your character's class.</p>
-    <p>Each suit corresponds to a different class archetype with special abilities.</p>
-    
-    <div className="card-meaning">
-      <h4>Suit Meanings for Class</h4>
-      <table className="card-meaning-table">
-        <tbody>
-          <tr>
-            <td className="suit-hearts">Hearts</td>
-            <td>Warrior Classes - Physical combat specialists</td>
-          </tr>
-          <tr>
-            <td className="suit-diamonds">Diamonds</td>
-            <td>Wizard Classes - Masters of arcane magic</td>
-          </tr>
-          <tr>
-            <td className="suit-clubs">Clubs</td>
-            <td>Rogue Classes - Specialists in stealth and trickery</td>
-          </tr>
-          <tr>
-            <td className="suit-spades">Spades</td>
-            <td>Cleric Classes - Wielders of divine power</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div className="card-deck">
-      <div className="card-type-indicator">Class Card</div>
-      <div className={`card-placeholder ${isAnimating ? 'animate-draw' : ''}`}>
-        <Card faceDown={true} size="large" />
-      </div>
-    </div>
-    <button 
-      className="ceremony-button"
-      onClick={drawClassCard}
-      disabled={isAnimating}
-    >
-      {isAnimating ? 'Drawing...' : 'Draw Class Card'}
-    </button>
-  </div>
-)}
-
-{currentStep === 'class-reveal' && (
-  <div className="ceremony-step reveal-step">
-    <h2>Your Class Awaits</h2>
-    <p>Click the card to reveal your class.</p>
-    <div className="card-reveal">
-      <div className="card-holder-container">
-        <div className="card-type-indicator">Class Card</div>
-        <div 
-          className={`card-holder ${!cardFaceDown ? 'revealed' : ''}`}
-          onClick={revealClassCard}
-        >
-          <Card 
-            suit={classCard.suit} 
-            rank={classCard.rank} 
-            size="large" 
-            faceDown={cardFaceDown} 
-          />
+      {currentStep === 'class-draw' && (
+        <div className="ceremony-step draw-step">
+          <h2>Draw Your Class Card</h2>
+          <p>The second draw will determine your character's class.</p>
+          <p>Each suit corresponds to a different class archetype with special abilities.</p>
+          
+          <div className="card-meaning">
+            <h4>Suit Meanings for Class</h4>
+            <table className="card-meaning-table">
+              <tbody>
+                <tr>
+                  <td className="suit-hearts">Hearts</td>
+                  <td>Warrior Classes - Physical combat specialists</td>
+                </tr>
+                <tr>
+                  <td className="suit-diamonds">Diamonds</td>
+                  <td>Wizard Classes - Masters of arcane magic</td>
+                </tr>
+                <tr>
+                  <td className="suit-clubs">Clubs</td>
+                  <td>Rogue Classes - Specialists in stealth and trickery</td>
+                </tr>
+                <tr>
+                  <td className="suit-spades">Spades</td>
+                  <td>Cleric Classes - Wielders of divine power</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="card-deck">
+            <div className="card-type-indicator">Class Card</div>
+            <div className={`card-placeholder ${isAnimating ? 'animate-draw' : ''}`}>
+              <Card faceDown={true} size="large" />
+            </div>
+          </div>
+          <button 
+            className="ceremony-button"
+            onClick={drawClassCard}
+            disabled={isAnimating}
+          >
+            {isAnimating ? 'Drawing...' : 'Draw Class Card'}
+          </button>
         </div>
-      </div>
-      
-      {!cardFaceDown && (
-        <div className="class-info">
-          <h3>{classData.name}</h3>
-          <p>{classData.description.split(' - ')[1]}</p>
-          {renderCardMeaningTable('class')}
+      )}
+
+      {currentStep === 'class-reveal' && (
+        <div className="ceremony-step reveal-step">
+          <h2>Your Class Awaits</h2>
+          <p>Click the card to reveal your class.</p>
+          <div className="card-reveal">
+            <div className="card-holder-container">
+              <div className="card-type-indicator">Class Card</div>
+              <div 
+                className={`card-holder ${!cardFaceDown ? 'revealed' : ''}`}
+                onClick={revealClassCard}
+              >
+                <Card 
+                  suit={classCard.suit} 
+                  rank={classCard.rank} 
+                  size="large" 
+                  faceDown={cardFaceDown} 
+                />
+              </div>
+            </div>
+            
+            {!cardFaceDown && (
+              <div className="class-info">
+                <h3>{classData.name}</h3>
+                <p>{classData.description.split(' - ')[1]}</p>
+                {renderCardMeaningTable('class')}
+              </div>
+            )}
+          </div>
+          {!cardFaceDown && (
+            <button 
+              className="ceremony-button"
+              onClick={() => setCurrentStep('summary')}
+            >
+              Continue to Name Selection
+            </button>
+          )}
+        </div>
+      )}
+
+      {currentStep === 'summary' && (
+        <div className="ceremony-step summary-step">
+          <h2>Your Character's Path</h2>
+          
+          <div className="character-summary">
+            <div className="character-cards">
+              <div className="race-card-summary">
+                <h3>Race</h3>
+                <Card suit={raceCard.suit} rank={raceCard.rank} size="medium" />
+                <p>{raceData.name}</p>
+              </div>
+              
+              <div className="class-card-summary">
+                <h3>Class</h3>
+                <Card suit={classCard.suit} rank={classCard.rank} size="medium" />
+                <p>{classData.name}</p>
+              </div>
+            </div>
+            
+            <div className="character-destiny">
+              <p>
+                The cards have revealed your destiny as a <strong>{raceData.name} {classData.name}</strong>.
+              </p>
+              <p>Your character will begin with traits and abilities reflecting this unique combination.</p>
+            </div>
+          </div>
+          
+          <div className="name-selection">
+            <h3>Choose Your Character's Name</h3>
+            <p>Select one of these names inspired by your race and class, or enter your own:</p>
+            
+            <div className="suggested-names">
+              {suggestedNames.map((name, index) => (
+                <button 
+                  key={index} 
+                  className={`name-suggestion ${selectedName === name ? 'selected' : ''}`}
+                  onClick={() => setSelectedName(name)}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+            
+            <div className="custom-name">
+              <input 
+                type="text" 
+                value={selectedName} 
+                onChange={(e) => setSelectedName(e.target.value)} 
+                placeholder="Enter character name"
+                className="name-input"
+              />
+            </div>
+          </div>
+          
+          <button 
+            className="ceremony-button complete-button"
+            onClick={completeDrawing}
+            disabled={!selectedName.trim()}
+          >
+            Accept Your Destiny
+          </button>
         </div>
       )}
     </div>
-    {!cardFaceDown && (
-      <button 
-        className="ceremony-button"
-        onClick={() => setCurrentStep('summary')}
-      >
-        Continue to Name Selection
-      </button>
-    )}
-  </div>
-)}
+  );
+};
 
-{currentStep === 'summary' && (
-  <div className="ceremony-step summary-step">
-    <h2>Your Character's Path</h2>
-    
-    <div className="character-summary">
-      <div className="character-cards">
-        <div className="race-card-summary">
-          <h3>Race</h3>
-          <Card suit={raceCard.suit} rank={raceCard.rank} size="medium" />
-          <p>{raceData.name}</p>
-        </div>
-        
-        <div className="class-card-summary">
-          <h3>Class</h3>
-          <Card suit={classCard.suit} rank={classCard.rank} size="medium" />
-          <p>{classData.name}</p>
-        </div>
-      </div>
-      
-      <div className="character-destiny">
-        <p>
-          The cards have revealed your destiny as a <strong>{raceData.name} {classData.name}</strong>.
-        </p>
-        <p>Your character will begin with traits and abilities reflecting this unique combination.</p>
-      </div>
-    </div>
-    
-    <div className="name-selection">
-      <h3>Choose Your Character's Name</h3>
-      <p>Select one of these names inspired by your race and class, or enter your own:</p>
-      
-      <div className="suggested-names">
-        {suggestedNames.map((name, index) => (
-          <button 
-            key={index} 
-            className={`name-suggestion ${selectedName === name ? 'selected' : ''}`}
-            onClick={() => setSelectedName(name)}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-      
-      <div className="custom-name">
-        <input 
-          type="text" 
-          value={selectedName} 
-          onChange={(e) => setSelectedName(e.target.value)} 
-          placeholder="Enter character name"
-          className="name-input"
-        />
-      </div>
-    </div>
-    
-    <button 
-      className="ceremony-button complete-button"
-      onClick={completeDrawing}
-      disabled={!selectedName.trim()}
-    >
-      Accept Your Destiny
-    </button>
-  </div>
-)}
+export default CardDrawingCeremony;
