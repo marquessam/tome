@@ -642,6 +642,138 @@ export function createNewCharacter(gameState, characterName) {
   return character;
 }
 
+// Create a new character with specific race and class cards
+export function createCharacterWithCards(gameState, characterName, raceCard, classCard) {
+  // Check if we need a subtype card for the race
+  let subtypeCard = null;
+  if (requiresSubtypeCard(raceCard)) {
+    subtypeCard = drawCard(gameState, false);
+  }
+  
+  // Create the character
+  const characterData = createCharacter(characterName, raceCard, classCard, subtypeCard);
+  
+  // Add game-specific properties
+  const character = {
+    ...characterData,
+    id: nanoid(),
+    created: new Date().toISOString(),
+    xp: 0,
+    level: 1,
+    position: { x: 0, y: 0 },
+    inventory: [],
+    equipped: {
+      weapon: null,
+      armor: null,
+      trinket: null
+    },
+    gold: 0,
+    conditions: [],
+    quests: [],
+    notes: []
+  };
+  
+  // Add starting equipment based on class
+  if (character.class === 'Warrior') {
+    // Draw cards for starting equipment
+    const weaponCard = { suit: 'hearts', rank: '3' }; // Steel Scimitar
+    const armorCard = { suit: 'hearts', rank: '2' }; // Iron Plate Armor
+    
+    const weapon = getItemFromCard(weaponCard, 'weapon');
+    const armor = getItemFromCard(armorCard, 'armor');
+    
+    character.inventory.push(weapon);
+    character.inventory.push(armor);
+    
+    // Auto-equip
+    character.equipped.weapon = weapon;
+    character.equipped.armor = armor;
+  } else if (character.class === 'Wizard') {
+    // Starting equipment for wizard
+    const weaponCard = { suit: 'diamonds', rank: '2' }; // Apprentice Staff of the Flame
+    const armorCard = { suit: 'diamonds', rank: 'ace' }; // Apprentice's Robe
+    
+    const weapon = getItemFromCard(weaponCard, 'weapon');
+    const armor = getItemFromCard(armorCard, 'armor');
+    
+    character.inventory.push(weapon);
+    character.inventory.push(armor);
+    
+    // Auto-equip
+    character.equipped.weapon = weapon;
+    character.equipped.armor = armor;
+  } else if (character.class === 'Rogue') {
+    // Starting equipment for rogue
+    const weaponCard = { suit: 'hearts', rank: 'ace' }; // Rusty Dagger (2 of them)
+    const armorCard = { suit: 'clubs', rank: 'ace' }; // Soft Leather Vest
+    
+    const weapon = getItemFromCard(weaponCard, 'weapon');
+    const weapon2 = { ...weapon, id: nanoid() }; // A second dagger
+    const armor = getItemFromCard(armorCard, 'armor');
+    
+    character.inventory.push(weapon);
+    character.inventory.push(weapon2);
+    character.inventory.push(armor);
+    
+    // Auto-equip
+    character.equipped.weapon = weapon;
+    character.equipped.armor = armor;
+  } else if (character.class === 'Cleric') {
+    // Starting equipment for cleric
+    const weaponCard = { suit: 'clubs', rank: '2' }; // Oak Mace
+    const armorCard = { suit: 'hearts', rank: '2' }; // Iron Plate Armor
+    
+    const weapon = getItemFromCard(weaponCard, 'weapon');
+    const armor = getItemFromCard(armorCard, 'armor');
+    
+    character.inventory.push(weapon);
+    character.inventory.push(armor);
+    
+    // Auto-equip
+    character.equipped.weapon = weapon;
+    character.equipped.armor = armor;
+  }
+  
+  // Also give some starting gold
+  character.gold = 10;
+  
+  // Add some healing potions
+  const minorHealingPotion = {
+    name: "Minor Healing Potion",
+    description: "A small vial containing a red liquid that heals minor wounds.",
+    type: "consumable",
+    subtype: "potion",
+    rarity: "common",
+    effects: {
+      healing: 2
+    },
+    id: nanoid()
+  };
+  
+  character.inventory.push(minorHealingPotion);
+  character.inventory.push({ ...minorHealingPotion, id: nanoid() }); // A second one
+  
+  // Add the character to the game state
+  gameState.characters.push(character);
+  
+  // Make this the current character if there isn't one
+  if (!gameState.currentCharacterId) {
+    gameState.currentCharacterId = character.id;
+  }
+  
+  // Log the character creation
+  gameState.gameLog.push({
+    timestamp: new Date().toISOString(),
+    type: 'character_creation',
+    message: `New character created: ${character.name}, a ${character.race} ${character.class}`
+  });
+  
+  // Save the updated game state
+  saveGameState(gameState);
+  
+  return character;
+}
+
 // Get the current character
 export function getCurrentCharacter(gameState) {
   if (!gameState.currentCharacterId) {
