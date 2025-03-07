@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import Card from '../common/Card';
 import '../../styles/CombatInterface.css';
 
 const CombatInterface = ({ combat, character, encounter }) => {
-  const { performCombatAction: performAction, useItem: useItemAction } = useGame();
+  const { performCombatAction, useItem } = useGame();
   const [selectedEnemy, setSelectedEnemy] = useState(null);
   const [selectedAction, setSelectedAction] = useState('attack'); // 'attack', 'item', 'flee'
   const [selectedItem, setSelectedItem] = useState(null);
@@ -18,29 +18,26 @@ const CombatInterface = ({ combat, character, encounter }) => {
     }
   }, [combat]);
   
-  // Create memoized handlers to avoid ESLint warnings
-  const performCombatAction = useCallback((action, target) => {
-    performAction(action, target);
-  }, [performAction]);
-  
-  const useItem = useCallback((itemId) => {
-    useItemAction(itemId);
-  }, [useItemAction]);
-  
   // Auto-trigger enemy actions
   useEffect(() => {
+    let enemyActionTimer;
+    
     // Only execute when not player turn and combat is active
     if (combat && combat.turn === 'enemy' && combat.status === 'active') {
       // Add a small delay for better user experience
-      const enemyActionTimer = setTimeout(() => {
+      enemyActionTimer = setTimeout(() => {
         performCombatAction('enemy_attack');
       }, 1500);
-      
-      return () => clearTimeout(enemyActionTimer);
     }
+    
+    // Clean up timer if component unmounts or dependencies change
+    return () => {
+      if (enemyActionTimer) {
+        clearTimeout(enemyActionTimer);
+      }
+    };
   }, [combat, performCombatAction]);
   
-  // Early return if missing required props
   if (!combat || !character || !encounter) {
     return <div className="loading">Loading combat data...</div>;
   }
