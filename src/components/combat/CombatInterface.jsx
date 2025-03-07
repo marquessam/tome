@@ -18,6 +18,20 @@ const CombatInterface = ({ combat, character, encounter }) => {
     }
   }, [combat]);
   
+  // Auto-trigger enemy actions - moved outside of conditional check
+  useEffect(() => {
+    // Only execute the code inside when these conditions are met
+    if (combat && !isPlayerTurn && combat.status === 'active') {
+      // Add a small delay for better user experience
+      const enemyActionTimer = setTimeout(() => {
+        performCombatAction('enemy_attack');
+      }, 1500);
+      
+      return () => clearTimeout(enemyActionTimer);
+    }
+    // Include combat.turn and performCombatAction in dependencies
+  }, [combat, performCombatAction]);
+  
   if (!combat || !character || !encounter) {
     return <div className="loading">Loading combat data...</div>;
   }
@@ -89,18 +103,6 @@ const CombatInterface = ({ combat, character, encounter }) => {
         break;
     }
   };
-  
-  // Auto-trigger enemy actions
-  useEffect(() => {
-    if (!isPlayerTurn && combat.status === 'active') {
-      // Add a small delay for better user experience
-      const enemyActionTimer = setTimeout(() => {
-        performCombatAction('enemy_attack');
-      }, 1500);
-      
-      return () => clearTimeout(enemyActionTimer);
-    }
-  }, [combat.turn, combat.status, performCombatAction, isPlayerTurn]);
   
   // Get health bar color based on percentage
   const getHealthColor = (percent) => {
