@@ -28,6 +28,7 @@ const GamePage = () => {
   
   const [showCharacterSheet, setShowCharacterSheet] = useState(false);
   const [showGameLog, setShowGameLog] = useState(false);
+  const [showDeckDisplay, setShowDeckDisplay] = useState(false);
   
   // Load world data on mount
   useEffect(() => {
@@ -63,6 +64,11 @@ const GamePage = () => {
     setShowGameLog(prev => !prev);
   };
   
+  // Toggle deck display
+  const toggleDeckDisplay = () => {
+    setShowDeckDisplay(prev => !prev);
+  };
+  
   if (loading) {
     return <div className="loading">Loading game data...</div>;
   }
@@ -82,7 +88,9 @@ const GamePage = () => {
     <div className="game-page">
       <div className="game-container">
         <header className="game-header">
-          <h1>{gameState.name}</h1>
+          <div className="header-left">
+            <h1>{gameState.name}</h1>
+          </div>
           <div className="character-quick-info">
             <span className="character-name">{currentCharacter.name}</span>
             <span className="character-level">
@@ -93,6 +101,12 @@ const GamePage = () => {
             </div>
           </div>
           <div className="header-actions">
+            <button 
+              className="deck-toggle-button"
+              onClick={toggleDeckDisplay}
+            >
+              {showDeckDisplay ? 'Hide Deck' : 'Show Deck'}
+            </button>
             <button 
               className="character-sheet-toggle"
               onClick={toggleCharacterSheet}
@@ -113,14 +127,11 @@ const GamePage = () => {
         
         <div className="game-main">
           <div className="game-left-panel">
-            <WorldMap 
-              map={gameState.map} 
-              currentPosition={currentCharacter.position}
-            />
             <GameControls 
               onExploreTile={handleExploreTile}
               canExplore={currentTile && !currentTile.explored}
             />
+            {showDeckDisplay && <CardDeck />}
           </div>
           
           <div className="game-center-panel">
@@ -137,83 +148,91 @@ const GamePage = () => {
                 onClose={() => setEncounter(null)}
               />
             ) : (
-              <div className="location-display">
-                <h2>Current Location</h2>
-                {currentTile ? (
-                  <>
-                    <h3>{currentTile.location.name}</h3>
-                    <p>{currentTile.location.description}</p>
-                    
-                    {/* Features */}
-                    {currentTile.location.features && currentTile.location.features.length > 0 && (
-                      <div className="location-features">
-                        <h4>Features</h4>
-                        <ul>
-                          {currentTile.location.features.map((feature, index) => (
-                            <li key={index}>{feature}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* Encounters */}
-                    {currentTile.explored && currentTile.encounters && currentTile.encounters.length > 0 && (
-                      <div className="location-encounters">
-                        <h4>Encounters</h4>
-                        <ul className="encounter-list">
-                          {currentTile.encounters
-                            .filter(encounter => !encounter.resolved)
-                            .map(encounter => (
-                              <li 
-                                key={encounter.id}
-                                className="encounter-item"
-                                onClick={() => handleSelectEncounter(encounter.id)}
-                              >
-                                <span className={`encounter-type ${encounter.type}`}>
-                                  {encounter.type.charAt(0).toUpperCase() + encounter.type.slice(1)}
-                                </span>
-                                <span className="encounter-name">
-                                  {encounter.data.name}
-                                </span>
+              <div className="map-and-location">
+                <div className="world-map-wrapper">
+                  <WorldMap 
+                    map={gameState.map} 
+                    currentPosition={currentCharacter.position}
+                  />
+                </div>
+                
+                <div className="location-display">
+                  <h2>Current Location</h2>
+                  {currentTile ? (
+                    <>
+                      <h3>{currentTile.location.name}</h3>
+                      <p>{currentTile.location.description}</p>
+                      
+                      {/* Features */}
+                      {currentTile.location.features && currentTile.location.features.length > 0 && (
+                        <div className="location-features">
+                          <h4>Features</h4>
+                          <ul>
+                            {currentTile.location.features.map((feature, index) => (
+                              <li key={index}>{feature}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Encounters */}
+                      {currentTile.explored && currentTile.encounters && currentTile.encounters.length > 0 && (
+                        <div className="location-encounters">
+                          <h4>Encounters</h4>
+                          <ul className="encounter-list">
+                            {currentTile.encounters
+                              .filter(encounter => !encounter.resolved)
+                              .map(encounter => (
+                                <li 
+                                  key={encounter.id}
+                                  className="encounter-item"
+                                  onClick={() => handleSelectEncounter(encounter.id)}
+                                >
+                                  <span className={`encounter-type ${encounter.type}`}>
+                                    {encounter.type.charAt(0).toUpperCase() + encounter.type.slice(1)}
+                                  </span>
+                                  <span className="encounter-name">
+                                    {encounter.data.name}
+                                  </span>
+                                </li>
+                              ))}
+                          </ul>
+                          
+                          {currentTile.encounters.every(encounter => encounter.resolved) && (
+                            <p className="all-resolved">All encounters have been resolved.</p>
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Items */}
+                      {currentTile.explored && currentTile.items && currentTile.items.length > 0 && (
+                        <div className="location-items">
+                          <h4>Items</h4>
+                          <ul>
+                            {currentTile.items.map(item => (
+                              <li key={item.id} className="item-list-item">
+                                {item.name} - {item.description}
                               </li>
                             ))}
-                        </ul>
-                        
-                        {currentTile.encounters.every(encounter => encounter.resolved) && (
-                          <p className="all-resolved">All encounters have been resolved.</p>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Items */}
-                    {currentTile.explored && currentTile.items && currentTile.items.length > 0 && (
-                      <div className="location-items">
-                        <h4>Items</h4>
-                        <ul>
-                          {currentTile.items.map(item => (
-                            <li key={item.id} className="item-list-item">
-                              {item.name} - {item.description}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {!currentTile.explored && (
-                      <div className="unexplored-notice">
-                        <p>This area is unexplored. Click 'Explore' to discover what's here!</p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p>Loading location data...</p>
-                )}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {!currentTile.explored && (
+                        <div className="unexplored-notice">
+                          <p>This area is unexplored. Click 'Explore' to discover what's here!</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p>Loading location data...</p>
+                  )}
+                </div>
               </div>
             )}
           </div>
           
           <div className="game-right-panel">
-            <CardDeck />
             {showGameLog && (
               <GameLog gameState={gameState} />
             )}
