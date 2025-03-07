@@ -1,0 +1,448 @@
+.combat-interface {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.combat-header {
+  background-color: #d32f2f;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.combat-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.combat-title h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.combat-status {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.encounter-card {
+  margin-left: 10px;
+}
+
+.combat-content {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Combat area */
+.combat-area {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.player-section {
+  background-color: #e3f2fd;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.player-name {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #1565c0;
+}
+
+.player-health {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.health-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.health-bar-background {
+  background-color: #e0e0e0;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.health-bar-fill.good {
+  background-color: #4caf50;
+}
+
+.health-bar-fill.medium {
+  background-color: #ffeb3b;
+}
+
+.health-bar-fill.low {
+  background-color: #ff9800;
+}
+
+.health-bar-fill.critical {
+  background-color: #f44336;
+}
+
+.enemies-section {
+  margin-top: 20px;
+}
+
+.enemies-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.enemy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.enemy-card {
+  background-color: #fff8e1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.enemy-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.enemy-card.selected {
+  border: 2px solid #f57c00;
+  background-color: #fff3e0;
+  transform: translateY(-3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.enemy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.enemy-name {
+  font-weight: bold;
+  color: #f57c00;
+}
+
+.current-turn-indicator {
+  color: #f44336;
+  animation: pulsate 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulsate {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.all-defeated-message {
+  text-align: center;
+  padding: 15px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* Combat log */
+.combat-log {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 15px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.combat-log h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 1rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.log-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.log-entry {
+  font-size: 0.9rem;
+  padding: 5px 8px;
+  background-color: white;
+  border-radius: 4px;
+  border-left: 3px solid #ddd;
+}
+
+.log-round {
+  font-weight: bold;
+  margin-right: 5px;
+  color: #555;
+}
+
+.log-message {
+  color: #333;
+}
+
+/* Combat actions */
+.combat-actions {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.action-button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.action-button.selected {
+  border: 2px solid #2196f3;
+  background-color: #e3f2fd;
+}
+
+.action-instructions {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.perform-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.perform-button:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
+.perform-button:disabled {
+  background-color: #ffcdd2;
+  cursor: not-allowed;
+}
+
+.enemy-turn-message {
+  text-align: center;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 5px;
+  color: #c62828;
+  font-weight: bold;
+}
+
+/* Inventory overlay */
+.inventory-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.inventory-panel {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.inventory-panel h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.usable-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.usable-item {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.usable-item:hover {
+  background-color: #f0f0f0;
+}
+
+.item-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.item-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.item-effect {
+  font-size: 0.8rem;
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.no-items-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.close-inventory-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.close-inventory-button:hover {
+  background-color: #e5e5e5;
+}
+
+/* Combat result overlay */
+.combat-result-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.result-panel {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.result-panel h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.combat-rewards {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff8e1;
+  border-radius: 8px;
+}
+
+.combat-rewards h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #f57f17;
+}
+
+.continue-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.continue-button:hover {
+  background-color: #1976d2;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .enemy-card {
+    padding: 10px;
+  }
+}
