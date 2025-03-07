@@ -530,7 +530,7 @@ const CardDrawingCeremony = ({ drawCards, onComplete }) => {
         </div>
       )}
       
-     {currentStep === 'class-draw' && (
+{currentStep === 'class-draw' && (
   <div className="ceremony-step draw-step">
     <h2>Draw Your Class Card</h2>
     <p>The second draw will determine your character's class.</p>
