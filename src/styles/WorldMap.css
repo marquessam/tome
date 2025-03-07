@@ -1,8 +1,43 @@
 .world-map-container {
   background-color: #f9f9f9;
   border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+.map-title {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+}
+
+.great-threat-indicator {
+  background-color: #ffebee;
+  border: 2px solid #d32f2f;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  color: #b71c1c;
+  width: 100%;
+}
+
+.threat-icon {
+  font-size: 1.5rem;
+}
+
+.threat-info {
+  flex: 1;
 }
 
 .map-controls {
@@ -10,6 +45,8 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 15px;
+  width: 100%;
+  max-width: 200px;
 }
 
 .map-controls button {
@@ -20,6 +57,11 @@
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .map-controls button:hover {
@@ -31,6 +73,7 @@
   justify-content: center;
   gap: 10px;
   margin: 10px 0;
+  width: 100%;
 }
 
 .map-grid-container {
@@ -38,14 +81,18 @@
   justify-content: center;
   margin-bottom: 15px;
   overflow: auto;
-  max-height: 400px;
+  max-height: 500px;
+  width: 100%;
+  border: 3px solid #ccc;
+  border-radius: 8px;
+  background-color: #e0e0e0;
+  padding: 5px;
 }
 
 .map-grid {
   display: flex;
   flex-direction: column;
-  border: 1px solid #ccc;
-  background-color: #e0e0e0;
+  min-width: min-content;
 }
 
 .map-row {
@@ -53,44 +100,63 @@
 }
 
 .map-tile {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border: 1px solid #ddd;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   position: relative;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .map-tile:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   z-index: 10;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .map-tile.current-position {
-  border: 2px solid #000;
+  border: 3px solid #000;
   z-index: 5;
+  animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7); }
+  100% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+}
+
+.map-tile.great-threat {
+  border: 3px dashed #d32f2f;
+  z-index: 5;
+  background-image: linear-gradient(45deg, #ffcdd2 25%, #ffebee 25%, #ffebee 50%, #ffcdd2 50%, #ffcdd2 75%, #ffebee 75%, #ffebee 100%);
+  background-size: 20px 20px;
 }
 
 .map-tile.adjacent {
   border: 2px dashed #555;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .tile-content {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   text-align: center;
+  z-index: 2;
 }
 
 .tile-coordinates {
   position: absolute;
   bottom: 2px;
   right: 2px;
-  font-size: 0.6rem;
-  color: #999;
+  font-size: 0.7rem;
+  color: #555;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1px 3px;
+  border-radius: 2px;
 }
 
 /* Tile types */
@@ -100,6 +166,7 @@
 
 .tile-unexplored {
   background-color: rgba(240, 240, 240, 0.7);
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0, 0, 0, 0.05) 5px, rgba(0, 0, 0, 0.05) 10px);
 }
 
 .tile-arid {
@@ -108,14 +175,19 @@
 
 .tile-water {
   background-color: #a8d5ff;
+  background-image: repeating-radial-gradient(circle at 10px 10px, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 3px, transparent 3px, transparent 8px);
 }
 
 .tile-forest {
   background-color: #a5d6a7;
+  background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 2px, transparent 2px);
+  background-size: 10px 10px;
 }
 
 .tile-mountain {
   background-color: #b0bec5;
+  background-image: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1) 75%, transparent 75%, transparent);
+  background-size: 15px 15px;
 }
 
 .tile-threat {
@@ -125,46 +197,70 @@
 /* Legend */
 .map-legend {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
   background-color: #f5f5f5;
-  border-radius: 5px;
-  font-size: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+}
+
+.legend-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  width: 100%;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  margin-right: 10px;
+  gap: 8px;
 }
 
 .legend-icon {
-  margin-right: 5px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 1rem;
 }
 
 .tile-sample {
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
   border: 1px solid #ccc;
-  margin-right: 5px;
 }
 
 .legend-label {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {
   .map-tile {
-    width: 30px;
-    height: 30px;
-    font-size: 1rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
   }
   
   .map-legend {
     flex-direction: column;
     align-items: flex-start;
+  }
+  
+  .legend-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
