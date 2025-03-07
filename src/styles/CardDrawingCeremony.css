@@ -1,59 +1,108 @@
 .card-drawing-ceremony {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  background-color: #1a1a2e;
+  color: #e6e6e6;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  padding: 35px;
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-drawing-ceremony::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232d344b' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.3;
+  z-index: -1;
 }
 
 .ceremony-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 25px;
+  position: relative;
+  z-index: 1;
 }
 
 .ceremony-step h2 {
-  font-size: 1.8rem;
-  color: #333;
+  font-size: 2.2rem;
+  color: #f7d59c;
   margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ceremony-step p {
-  color: #555;
-  line-height: 1.5;
+  color: #b3c0d2;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .ceremony-button {
-  background-color: #61dafb;
-  color: #282c34;
+  background: linear-gradient(135deg, #61dafb, #2a5298);
+  color: white;
   border: none;
-  padding: 12px 30px;
-  border-radius: 5px;
-  font-size: 1.1rem;
+  padding: 14px 35px;
+  border-radius: 10px;
+  font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-top: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 25px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ceremony-button::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), transparent);
+  transform: rotate(45deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .ceremony-button:hover {
-  background-color: #4fa8c9;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
+}
+
+.ceremony-button:hover::after {
+  opacity: 1;
+}
+
+.ceremony-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .ceremony-button:disabled {
-  background-color: #cccccc;
+  background: linear-gradient(135deg, #808080, #505050);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-deck {
   position: relative;
-  height: 250px;
-  width: 170px;
-  margin: 20px auto;
+  height: 280px;
+  width: 200px;
+  margin: 30px auto;
+  perspective: 1000px;
 }
 
 .card-placeholder {
@@ -61,21 +110,25 @@
   top: 0;
   left: 0;
   transition: transform 0.5s ease;
+  transform-style: preserve-3d;
 }
 
 .card-placeholder.animate-draw {
-  animation: drawCard 1s ease-in-out forwards;
+  animation: drawCard 1.5s ease-in-out forwards;
 }
 
 @keyframes drawCard {
   0% {
-    transform: translateY(-20px);
+    transform: translateY(-10px) rotateY(0deg);
+    box-shadow: 0 0 20px rgba(97, 218, 251, 0.7);
   }
   50% {
-    transform: translateY(30px) rotate(5deg);
+    transform: translateY(50px) rotateY(180deg) scale(1.1);
+    box-shadow: 0 0 30px rgba(97, 218, 251, 0.9);
   }
   100% {
-    transform: translateY(0) rotate(0);
+    transform: translateY(0) rotateY(360deg);
+    box-shadow: 0 0 10px rgba(97, 218, 251, 0.5);
   }
 }
 
@@ -83,14 +136,31 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 25px;
 }
 
 .card-holder {
   cursor: pointer;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.8s ease-in-out;
   transform-style: preserve-3d;
   margin: 20px 0;
+  position: relative;
+}
+
+.card-holder::before {
+  content: "Click to reveal";
+  position: absolute;
+  top: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #f7d59c;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.card-holder.revealed::before {
+  content: "";
 }
 
 .card-holder.revealed {
@@ -98,24 +168,42 @@
 }
 
 .race-info, .class-info {
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border-left: 4px solid #61dafb;
+  padding: 20px;
+  background: rgba(26, 32, 58, 0.7);
+  border-radius: 10px;
+  border-left: 5px solid #61dafb;
   text-align: left;
-  max-width: 500px;
+  max-width: 550px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(20px);
+  opacity: 0;
+  animation: fadeIn 0.5s forwards 0.3s;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .race-info h3, .class-info h3 {
   margin-top: 0;
-  color: #333;
+  color: #f7d59c;
+  font-size: 1.4rem;
+}
+
+.race-info p, .class-info p {
+  color: #d1d9e6;
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
 
 .character-summary {
   display: flex;
   flex-direction: column;
   gap: 30px;
-  margin: 20px 0;
+  margin: 25px 0;
 }
 
 .character-cards {
@@ -129,49 +217,153 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
+  background: rgba(26, 32, 58, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
 }
 
 .race-card-summary h3, .class-card-summary h3 {
   margin: 0;
-  color: #555;
+  color: #f7d59c;
+  font-size: 1.2rem;
 }
 
 .race-card-summary p, .class-card-summary p {
   font-weight: bold;
   margin: 5px 0 0 0;
-  color: #333;
+  color: #ffffff;
 }
 
 .character-destiny {
-  background-color: #f0f7ff;
-  padding: 20px;
+  background: linear-gradient(135deg, rgba(26, 32, 58, 0.8), rgba(42, 82, 152, 0.6));
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 650px;
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.character-destiny p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.character-destiny strong {
+  color: #f7d59c;
+  font-weight: bold;
+}
+
+.complete-button {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  font-size: 1.3rem;
+  padding: 16px 40px;
+  margin-top: 10px;
+}
+
+.complete-button:hover {
+  background: linear-gradient(135deg, #5cb860, #3d8b40);
+}
+
+/* Card Type Indicators */
+.card-type-indicator {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #f7d59c;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-meaning {
+  margin: 15px auto;
+  padding: 15px;
+  background: rgba(26, 32, 58, 0.5);
   border-radius: 8px;
   max-width: 600px;
 }
 
-.complete-button {
-  background-color: #4caf50;
-  color: white;
-  font-size: 1.2rem;
-  padding: 15px 40px;
+.card-meaning h4 {
+  margin-top: 0;
+  color: #f7d59c;
 }
 
-.complete-button:hover {
-  background-color: #3c9f40;
+.card-meaning-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  text-align: left;
 }
 
+.card-meaning-table th, 
+.card-meaning-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-meaning-table th {
+  color: #61dafb;
+}
+
+.card-meaning-table td {
+  color: #d1d9e6;
+}
+
+/* Suit color indicators */
+.suit-hearts {
+  color: #ff6b6b;
+}
+
+.suit-diamonds {
+  color: #48dbfb;
+}
+
+.suit-clubs {
+  color: #1dd1a1;
+}
+
+.suit-spades {
+  color: #f368e0;
+}
+
+/* Animation for intro */
+.intro-step {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .card-drawing-ceremony {
-    padding: 20px;
+    padding: 25px 15px;
   }
   
   .ceremony-step h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
   
   .character-cards {
     gap: 20px;
+  }
+  
+  .race-card-summary, .class-card-summary {
+    min-width: 150px;
   }
 }
 
