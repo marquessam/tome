@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../common/Card';
-import '../styles/CardDrawingCeremony.css';
+import '../../styles/CardDrawingCeremony.css';
 
 const CardDrawingCeremony = ({ drawCards, onComplete }) => {
   const [currentStep, setCurrentStep] = useState('intro'); // intro, race-draw, race-reveal, class-draw, class-reveal, summary
