@@ -48,12 +48,13 @@ export const GameProvider = ({ children }) => {
     try {
       const newGame = GameEngine.createNewWorld(worldName);
       setGameState(newGame);
+      setLoading(false);
       return newGame;
     } catch (err) {
-      setError('Failed to create world: ' + err.message);
-      console.error(err);
-    } finally {
+      console.error('Failed to create world:', err);
+      setError('Failed to create world: ' + (err.message || String(err)));
       setLoading(false);
+      return null;
     }
   };
   
@@ -68,12 +69,13 @@ export const GameProvider = ({ children }) => {
         throw new Error('World not found');
       }
       setGameState(savedGame);
+      setLoading(false);
       return savedGame;
     } catch (err) {
-      setError('Failed to load world: ' + err.message);
-      console.error(err);
-    } finally {
+      console.error('Failed to load world:', err);
+      setError('Failed to load world: ' + (err.message || String(err)));
       setLoading(false);
+      return null;
     }
   };
   
@@ -82,8 +84,8 @@ export const GameProvider = ({ children }) => {
     try {
       return GameEngine.listSavedGames();
     } catch (err) {
-      setError('Failed to list saved worlds: ' + err.message);
-      console.error(err);
+      console.error('Failed to list saved worlds:', err);
+      setError('Failed to list saved worlds: ' + (err.message || String(err)));
       return [];
     }
   };
@@ -104,18 +106,19 @@ export const GameProvider = ({ children }) => {
       const newCharacter = GameEngine.createNewCharacter(world, characterName);
       setGameState({...world});
       setCurrentCharacter(newCharacter);
+      setLoading(false);
       return newCharacter;
     } catch (err) {
-      setError('Failed to create character: ' + err.message);
-      console.error(err);
-    } finally {
+      console.error('Failed to create character:', err);
+      setError('Failed to create character: ' + (err.message || String(err)));
       setLoading(false);
+      return null;
     }
   };
   
   // Switch to a different character
   const switchCharacter = (characterId) => {
-    if (!gameState) return;
+    if (!gameState) return null;
     
     try {
       const character = GameEngine.switchCharacter(gameState, characterId);
@@ -132,14 +135,15 @@ export const GameProvider = ({ children }) => {
       
       return character;
     } catch (err) {
-      setError('Failed to switch character: ' + err.message);
-      console.error(err);
+      console.error('Failed to switch character:', err);
+      setError('Failed to switch character: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Movement functions
   const moveCharacter = (direction) => {
-    if (!gameState || !currentCharacter) return;
+    if (!gameState || !currentCharacter) return null;
     
     try {
       const result = GameEngine.moveCharacter(gameState, direction);
@@ -149,14 +153,15 @@ export const GameProvider = ({ children }) => {
       setActiveEncounter(null); // Reset active encounter on movement
       return result;
     } catch (err) {
-      setError('Failed to move: ' + err.message);
-      console.error(err);
+      console.error('Failed to move:', err);
+      setError('Failed to move: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Explore current tile
   const exploreTile = () => {
-    if (!gameState || !currentTile) return;
+    if (!gameState || !currentTile) return null;
     
     try {
       const exploredTile = GameEngine.exploreTile(gameState, currentTile.id);
@@ -164,14 +169,15 @@ export const GameProvider = ({ children }) => {
       setCurrentTile(exploredTile);
       return exploredTile;
     } catch (err) {
-      setError('Failed to explore tile: ' + err.message);
-      console.error(err);
+      console.error('Failed to explore tile:', err);
+      setError('Failed to explore tile: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Set active encounter
   const setEncounter = (encounterId) => {
-    if (!currentTile) return;
+    if (!currentTile) return null;
     
     const encounter = currentTile.encounters.find(enc => enc.id === encounterId);
     setActiveEncounter(encounter || null);
@@ -181,7 +187,7 @@ export const GameProvider = ({ children }) => {
   
   // Initiate combat for an encounter
   const startCombat = (encounterId) => {
-    if (!gameState) return;
+    if (!gameState) return null;
     
     try {
       const combat = GameEngine.initiateCombat(gameState, encounterId);
@@ -190,14 +196,15 @@ export const GameProvider = ({ children }) => {
       setCombatState(combat);
       return combat;
     } catch (err) {
-      setError('Failed to start combat: ' + err.message);
-      console.error(err);
+      console.error('Failed to start combat:', err);
+      setError('Failed to start combat: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Perform combat action
   const performCombatAction = (action, targetId) => {
-    if (!gameState || !activeEncounter) return;
+    if (!gameState || !activeEncounter) return null;
     
     try {
       const result = GameEngine.performCombatAction(
@@ -238,14 +245,15 @@ export const GameProvider = ({ children }) => {
       
       return result;
     } catch (err) {
-      setError('Failed to perform action: ' + err.message);
-      console.error(err);
+      console.error('Failed to perform action:', err);
+      setError('Failed to perform action: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Resolve a non-combat encounter
   const resolveEncounter = (outcome) => {
-    if (!gameState || !currentTile || !activeEncounter) return;
+    if (!gameState || !currentTile || !activeEncounter) return null;
     
     try {
       const result = GameEngine.resolveEncounter(
@@ -277,14 +285,15 @@ export const GameProvider = ({ children }) => {
       
       return result;
     } catch (err) {
-      setError('Failed to resolve encounter: ' + err.message);
-      console.error(err);
+      console.error('Failed to resolve encounter:', err);
+      setError('Failed to resolve encounter: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Use an item from inventory
   const useItem = (itemId) => {
-    if (!gameState || !currentCharacter) return;
+    if (!gameState || !currentCharacter) return null;
     
     try {
       // For now, only handle consumable items
@@ -325,14 +334,15 @@ export const GameProvider = ({ children }) => {
       
       throw new Error('This item cannot be used directly');
     } catch (err) {
-      setError('Failed to use item: ' + err.message);
-      console.error(err);
+      console.error('Failed to use item:', err);
+      setError('Failed to use item: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Equip an item
   const equipItem = (itemId) => {
-    if (!gameState || !currentCharacter) return;
+    if (!gameState || !currentCharacter) return null;
     
     try {
       const item = currentCharacter.inventory.find(item => item.id === itemId);
@@ -351,6 +361,9 @@ export const GameProvider = ({ children }) => {
       const currentEquipped = gameState.characters[characterIndex].equipped[item.type];
       
       // Update equipped items
+      if (!gameState.characters[characterIndex].equipped) {
+        gameState.characters[characterIndex].equipped = {};
+      }
       gameState.characters[characterIndex].equipped[item.type] = item;
       
       // Update game state
@@ -363,14 +376,15 @@ export const GameProvider = ({ children }) => {
         previousItem: currentEquipped
       };
     } catch (err) {
-      setError('Failed to equip item: ' + err.message);
-      console.error(err);
+      console.error('Failed to equip item:', err);
+      setError('Failed to equip item: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Unequip an item
   const unequipItem = (type) => {
-    if (!gameState || !currentCharacter || !currentCharacter.equipped[type]) return;
+    if (!gameState || !currentCharacter || !currentCharacter.equipped || !currentCharacter.equipped[type]) return null;
     
     try {
       const characterIndex = gameState.characters.findIndex(
@@ -390,14 +404,15 @@ export const GameProvider = ({ children }) => {
         unequippedItem: currentEquipped
       };
     } catch (err) {
-      setError('Failed to unequip item: ' + err.message);
-      console.error(err);
+      console.error('Failed to unequip item:', err);
+      setError('Failed to unequip item: ' + (err.message || String(err)));
+      return null;
     }
   };
   
   // Level up character
   const levelUpCharacter = () => {
-    if (!gameState || !currentCharacter) return;
+    if (!gameState || !currentCharacter) return null;
     
     try {
       const updatedCharacter = GameEngine.levelUpCharacter(
@@ -410,8 +425,9 @@ export const GameProvider = ({ children }) => {
       
       return updatedCharacter;
     } catch (err) {
-      setError('Failed to level up: ' + err.message);
-      console.error(err);
+      console.error('Failed to level up:', err);
+      setError('Failed to level up: ' + (err.message || String(err)));
+      return null;
     }
   };
   
