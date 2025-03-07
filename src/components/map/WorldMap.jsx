@@ -7,7 +7,8 @@ const WorldMap = ({ map, currentPosition }) => {
   const [mapGrid, setMapGrid] = useState([]);
   const [mapBounds, setMapBounds] = useState({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
   const [center, setCenter] = useState({ x: 0, y: 0 });
-  const [viewSize, setViewSize] = useState({ width: 9, height: 9 }); // Increased view size
+  const [viewSize, setViewSize] = useState({ width: 11, height: 11 }); // Larger view size
+  const [zoom, setZoom] = useState(1);
   const mapRef = useRef(null);
   
   // Convert map object to a grid representation
@@ -24,11 +25,11 @@ const WorldMap = ({ map, currentPosition }) => {
       maxY = Math.max(maxY, tile.y);
     });
     
-    // Ensure we have at least a 9x9 grid
-    minX = Math.min(minX, currentPosition.x - 4);
-    maxX = Math.max(maxX, currentPosition.x + 4);
-    minY = Math.min(minY, currentPosition.y - 4);
-    maxY = Math.max(maxY, currentPosition.y + 4);
+    // Ensure we have at least a view-sized grid
+    minX = Math.min(minX, currentPosition.x - Math.floor(viewSize.width / 2));
+    maxX = Math.max(maxX, currentPosition.x + Math.floor(viewSize.width / 2));
+    minY = Math.min(minY, currentPosition.y - Math.floor(viewSize.height / 2));
+    maxY = Math.max(maxY, currentPosition.y + Math.floor(viewSize.height / 2));
     
     setMapBounds({ minX, maxX, minY, maxY });
     
@@ -61,6 +62,18 @@ const WorldMap = ({ map, currentPosition }) => {
           (Math.abs(x - currentPosition.x) === 1 && y === currentPosition.y) ||
           (Math.abs(y - currentPosition.y) === 1 && x === currentPosition.x);
         
+        // Check if this is a path to the great threat (simple algorithm)
+        let isPathToThreat = false;
+        if (getGreatThreatPosition()) {
+          const threatPos = getGreatThreatPosition();
+          // Simple check if this is on direct line to threat
+          isPathToThreat = 
+            (x === currentPosition.x && x === threatPos.x && 
+             ((y > currentPosition.y && y < threatPos.y) || (y < currentPosition.y && y > threatPos.y))) ||
+            (y === currentPosition.y && y === threatPos.y && 
+             ((x > currentPosition.x && x < threatPos.x) || (x < currentPosition.x && x > threatPos.x)));
+        }
+        
         row.push({
           x,
           y,
@@ -69,6 +82,7 @@ const WorldMap = ({ map, currentPosition }) => {
           isGreatThreat,
           isAdjacent,
           isExplored: tile?.explored || false,
+          isPathToThreat,
           type: tile?.type || 'unknown'
         });
       }
@@ -121,6 +135,14 @@ const WorldMap = ({ map, currentPosition }) => {
     }
   };
   
+  // Handle zooming
+  const handleZoom = (zoomIn) => {
+    setZoom(prev => {
+      const newZoom = zoomIn ? Math.min(prev + 0.2, 2) : Math.max(prev - 0.2, 0.5);
+      return newZoom;
+    });
+  };
+  
   // Check for great threat position
   const getGreatThreatPosition = () => {
     for (const key in map) {
@@ -132,6 +154,29 @@ const WorldMap = ({ map, currentPosition }) => {
   };
   
   const greatThreat = getGreatThreatPosition();
+  
+  // Calculate distance to threat if it exists
+  const distanceToThreat = () => {
+    if (!greatThreat) return null;
+    const dx = greatThreat.x - currentPosition.x;
+    const dy = greatThreat.y - currentPosition.y;
+    return Math.sqrt(dx * dx + dy * dy).toFixed(1);
+  };
+  
+  // Get the direction to the great threat
+  const directionToThreat = () => {
+    if (!greatThreat) return null;
+    
+    const dx = greatThreat.x - currentPosition.x;
+    const dy = greatThreat.y - currentPosition.y;
+    
+    // Determine primary direction
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return dx > 0 ? 'East' : 'West';
+    } else {
+      return dy > 0 ? 'South' : 'North';
+    }
+  };
   
   // Get CSS class for tile type
   const getTileClass = (gridTile) => {
@@ -152,6 +197,7 @@ const WorldMap = ({ map, currentPosition }) => {
   const getTileIcon = (gridTile) => {
     if (gridTile.isCurrentPosition) return '🧙‍♂️'; // Player icon
     if (gridTile.isGreatThreat) return '☠️'; // Great Threat icon
+    if (gridTile.isPathToThreat) return '·'; // Path to threat
     
     if (!gridTile.tile || !gridTile.isExplored) return '';
     
@@ -180,22 +226,32 @@ const WorldMap = ({ map, currentPosition }) => {
         <div className="great-threat-indicator">
           <span className="threat-icon">☠️</span>
           <span className="threat-info">Great Threat: {greatThreat.threat?.name || "Unknown"}</span>
-          <span className="threat-location">Location: ({greatThreat.x}, {greatThreat.y})</span>
+          <div className="threat-details">
+            <span className="threat-location">Location: ({greatThreat.x}, {greatThreat.y})</span>
+            <span className="threat-distance">Distance: {distanceToThreat()} tiles {directionToThreat()}</span>
+          </div>
         </div>
       )}
       
       <div className="map-controls">
-        <button onClick={() => handlePan('up')}>⬆️</button>
-        <div className="horizontal-controls">
-          <button onClick={() => handlePan('left')}>⬅️</button>
-          <button onClick={() => handlePan('center')}>⊙</button>
-          <button onClick={() => handlePan('right')}>➡️</button>
+        <div className="navigation-controls">
+          <button onClick={() => handlePan('up')}>⬆️</button>
+          <div className="horizontal-controls">
+            <button onClick={() => handlePan('left')}>⬅️</button>
+            <button onClick={() => handlePan('center')} title="Center on player">⊙</button>
+            <button onClick={() => handlePan('right')}>➡️</button>
+          </div>
+          <button onClick={() => handlePan('down')}>⬇️</button>
         </div>
-        <button onClick={() => handlePan('down')}>⬇️</button>
+        
+        <div className="zoom-controls">
+          <button onClick={() => handleZoom(true)} title="Zoom in">+</button>
+          <button onClick={() => handleZoom(false)} title="Zoom out">-</button>
+        </div>
       </div>
       
       <div className="map-grid-container" ref={mapRef}>
-        <div className="map-grid">
+        <div className="map-grid" style={{ transform: `scale(${zoom})` }}>
           {mapGrid.map((row, rowIndex) => (
             <div key={`row-${rowIndex}`} className="map-row">
               {row.map((tile, colIndex) => (
@@ -203,7 +259,9 @@ const WorldMap = ({ map, currentPosition }) => {
                   key={`tile-${tile.x}-${tile.y}`}
                   className={`map-tile ${getTileClass(tile)} ${
                     tile.isCurrentPosition ? 'current-position' : ''
-                  } ${tile.isGreatThreat ? 'great-threat' : ''} ${tile.isAdjacent ? 'adjacent' : ''}`}
+                  } ${tile.isGreatThreat ? 'great-threat' : ''} ${tile.isAdjacent ? 'adjacent' : ''} ${
+                    tile.isPathToThreat ? 'path-to-threat' : ''
+                  }`}
                   onClick={() => handleTileClick(tile.x, tile.y)}
                   title={`(${tile.x}, ${tile.y}) ${tile.tile?.location?.name || 'Unknown'}`}
                 >
@@ -218,6 +276,13 @@ const WorldMap = ({ map, currentPosition }) => {
             </div>
           ))}
         </div>
+      </div>
+      
+      <div className="player-position-info">
+        <div className="position-label">Your Position: ({currentPosition.x}, {currentPosition.y})</div>
+        {currentTile && currentTile.location && (
+          <div className="location-name">{currentTile.location.name}</div>
+        )}
       </div>
       
       <div className="map-legend">
