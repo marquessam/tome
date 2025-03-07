@@ -382,6 +382,7 @@
     min-width: 300px;
   }
 }
+
 /* Name Selection Styles */
 .name-selection {
   background: linear-gradient(135deg, rgba(26, 32, 58, 0.7), rgba(42, 82, 152, 0.5));
@@ -466,6 +467,12 @@
 
 .name-input::placeholder {
   color: rgba(209, 217, 230, 0.5);
+}
+
+/* Card holder container */
+.card-holder-container {
+  position: relative;
+  margin-bottom: 40px;
 }
 
 /* Media queries for responsive design */
