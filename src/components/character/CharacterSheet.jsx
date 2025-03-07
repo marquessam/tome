@@ -27,7 +27,7 @@ const CharacterSheet = ({ character }) => {
     return `${character.xp || 0} / ${requiredXP}`;
   };
   
-  // Handle item use
+  // Handle item use - moved inside component body
   const handleUseItem = (itemId) => {
     useItem(itemId);
   };
