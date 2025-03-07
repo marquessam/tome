@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import '../../styles/CharacterSheet.css';
 
 const CharacterSheet = ({ character }) => {
   const { 
-    useItem, 
-    equipItem, 
-    unequipItem, 
+    useItem: useItemFromContext, 
+    equipItem: equipItemFromContext, 
+    unequipItem: unequipItemFromContext, 
     levelUpCharacter,
     canLevelUp
   } = useGame();
   
   const [activeTab, setActiveTab] = useState('stats'); // tabs: stats, inventory, abilities
+  
+  // Create memoized callback functions to avoid ESLint warnings
+  const handleUseItem = useCallback((itemId) => {
+    useItemFromContext(itemId);
+  }, [useItemFromContext]);
+  
+  const handleEquipItem = useCallback((itemId) => {
+    equipItemFromContext(itemId);
+  }, [equipItemFromContext]);
+  
+  const handleUnequipItem = useCallback((type) => {
+    unequipItemFromContext(type);
+  }, [unequipItemFromContext]);
+  
+  const handleLevelUp = useCallback(() => {
+    levelUpCharacter();
+  }, [levelUpCharacter]);
   
   if (!character) return <div>No character data available</div>;
   
@@ -25,26 +42,6 @@ const CharacterSheet = ({ character }) => {
   const formatXP = () => {
     const requiredXP = character.level * 100; // Simple formula from game engine
     return `${character.xp || 0} / ${requiredXP}`;
-  };
-  
-  // Handle item use - moved inside component body
-  const handleUseItem = (itemId) => {
-    useItem(itemId);
-  };
-  
-  // Handle equipping an item
-  const handleEquipItem = (itemId) => {
-    equipItem(itemId);
-  };
-  
-  // Handle unequipping an item
-  const handleUnequipItem = (type) => {
-    unequipItem(type);
-  };
-  
-  // Handle leveling up
-  const handleLevelUp = () => {
-    levelUpCharacter();
   };
   
   // Render stats tab
