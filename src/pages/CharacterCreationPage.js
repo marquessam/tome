@@ -9,7 +9,7 @@ const CharacterCreationPage = () => {
   const navigate = useNavigate();
   const { 
     loadWorld, 
-    createCharacter, 
+    createCharacterWithCards, // We'll update GameContext to include this new function
     gameState, 
     loading, 
     error 
@@ -43,53 +43,15 @@ const CharacterCreationPage = () => {
     setDrawnCards(cards);
     setCreationStage('review');
     
-    // Generate suggested names based on the cards
-    generateNameSuggestions(cards);
-  };
-  
-  // Generate name suggestions based on cards
-  const generateNameSuggestions = (cards) => {
-    // This would be more sophisticated in a real implementation
-    // For now, we'll generate some simple name suggestions
-    const names = [
-      generateRandomName(cards.raceCard, cards.classCard),
-      generateRandomName(cards.raceCard, cards.classCard),
-      generateRandomName(cards.raceCard, cards.classCard),
-      generateRandomName(cards.raceCard, cards.classCard),
-      generateRandomName(cards.raceCard, cards.classCard)
-    ];
+    // Set the suggested name if one was selected during the ceremony
+    if (cards.selectedName) {
+      setCharacterName(cards.selectedName);
+    }
     
-    setSuggestedNames(names);
-  };
-  
-  // Very simplified random name generator
-  const generateRandomName = (raceCard, classCard) => {
-    const firstNamePrefixes = ['Ar', 'Bel', 'Cal', 'Dra', 'El', 'Fae', 'Gor', 'Hel', 'Il', 'Jor', 'Kal', 'Lyr', 'Mal', 'Nor', 'Ori', 'Pyr', 'Quin', 'Rav', 'Syl', 'Tho', 'Uth', 'Val', 'Wil', 'Xan', 'Yor', 'Zan'];
-    
-    const firstNameSuffixes = ['an', 'or', 'in', 'is', 'us', 'ia', 'en', 'on', 'ar', 'eth', 'il', 'ak', 'ik', 'ur', 'ath', 'ith', 'oth', 'um', 'am', 'em', 'ir', 'iel', 'ael', 'wyn', 'wen'];
-    
-    const lastNamePrefixes = ['Black', 'Bright', 'Cloud', 'Dark', 'Dawn', 'Dusk', 'Ember', 'Fire', 'Frost', 'Gold', 'Green', 'Grey', 'High', 'Iron', 'Light', 'Moon', 'Night', 'Oak', 'Rain', 'Red', 'Shadow', 'Silver', 'Sky', 'Snow', 'Star', 'Storm', 'Swift', 'Thunder', 'True', 'Wind', 'Winter'];
-    
-    const lastNameSuffixes = ['blade', 'born', 'breath', 'crest', 'dancer', 'fall', 'fist', 'foot', 'forge', 'gaze', 'heart', 'hunter', 'keeper', 'kin', 'leaf', 'light', 'mane', 'mantle', 'mountain', 'path', 'river', 'runner', 'shield', 'singer', 'slayer', 'smith', 'song', 'spear', 'spirit', 'star', 'stone', 'strider', 'sword', 'walker', 'warden', 'weaver', 'wood'];
-    
-    // Use the card suits and ranks to seed the name generation
-    // This is a very simplified implementation - in a real game this would be more sophisticated
-    const suitValues = { hearts: 0, diamonds: 1, clubs: 2, spades: 3 };
-    const rankValues = { 
-      'ace': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, 
-      '10': 9, 'jack': 10, 'queen': 11, 'king': 12 
-    };
-    
-    const raceValue = (suitValues[raceCard.suit] * 13 + rankValues[raceCard.rank]) % firstNamePrefixes.length;
-    const classValue = (suitValues[classCard.suit] * 13 + rankValues[classCard.rank]) % firstNameSuffixes.length;
-    
-    const lastNameIndex1 = (raceValue + classValue) % lastNamePrefixes.length;
-    const lastNameIndex2 = (raceValue * classValue) % lastNameSuffixes.length;
-    
-    const firstName = firstNamePrefixes[raceValue] + firstNameSuffixes[classValue];
-    const lastName = lastNamePrefixes[lastNameIndex1] + lastNameSuffixes[lastNameIndex2];
-    
-    return `${firstName} ${lastName}`;
+    // Set the suggested names from the ceremony
+    if (cards.suggestedNames) {
+      setSuggestedNames(cards.suggestedNames);
+    }
   };
   
   // Handle character creation
@@ -101,8 +63,20 @@ const CharacterCreationPage = () => {
       return;
     }
     
+    if (!drawnCards.raceCard || !drawnCards.classCard) {
+      alert('Please complete the card drawing ceremony first');
+      return;
+    }
+    
     try {
-      const newCharacter = createCharacter(worldId, characterName);
+      // Use the cards drawn during the ceremony to create the character
+      const newCharacter = createCharacterWithCards(
+        worldId, 
+        characterName, 
+        drawnCards.raceCard, 
+        drawnCards.classCard
+      );
+      
       if (newCharacter) {
         navigate(`/worlds/${worldId}/play`);
       } else {
