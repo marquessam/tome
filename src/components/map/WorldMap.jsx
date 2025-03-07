@@ -7,7 +7,7 @@ const WorldMap = ({ map, currentPosition }) => {
   const [mapGrid, setMapGrid] = useState([]);
   const [mapBounds, setMapBounds] = useState({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
   const [center, setCenter] = useState({ x: 0, y: 0 });
-  const [viewSize, setViewSize] = useState({ width: 7, height: 7 }); // Show a 7x7 grid by default
+  const [viewSize, setViewSize] = useState({ width: 9, height: 9 }); // Increased view size
   const mapRef = useRef(null);
   
   // Convert map object to a grid representation
@@ -24,11 +24,11 @@ const WorldMap = ({ map, currentPosition }) => {
       maxY = Math.max(maxY, tile.y);
     });
     
-    // Ensure we have at least a 7x7 grid
-    minX = Math.min(minX, currentPosition.x - 3);
-    maxX = Math.max(maxX, currentPosition.x + 3);
-    minY = Math.min(minY, currentPosition.y - 3);
-    maxY = Math.max(maxY, currentPosition.y + 3);
+    // Ensure we have at least a 9x9 grid
+    minX = Math.min(minX, currentPosition.x - 4);
+    maxX = Math.max(maxX, currentPosition.x + 4);
+    minY = Math.min(minY, currentPosition.y - 4);
+    maxY = Math.max(maxY, currentPosition.y + 4);
     
     setMapBounds({ minX, maxX, minY, maxY });
     
@@ -53,6 +53,9 @@ const WorldMap = ({ map, currentPosition }) => {
         // Determine if this is the current position
         const isCurrentPosition = x === currentPosition.x && y === currentPosition.y;
         
+        // Check if this is the great threat location
+        const isGreatThreat = tile?.type === 'greatThreat';
+        
         // Determine if this position is adjacent to the current position
         const isAdjacent = 
           (Math.abs(x - currentPosition.x) === 1 && y === currentPosition.y) ||
@@ -63,6 +66,7 @@ const WorldMap = ({ map, currentPosition }) => {
           y,
           tile,
           isCurrentPosition,
+          isGreatThreat,
           isAdjacent,
           isExplored: tile?.explored || false,
           type: tile?.type || 'unknown'
@@ -117,6 +121,18 @@ const WorldMap = ({ map, currentPosition }) => {
     }
   };
   
+  // Check for great threat position
+  const getGreatThreatPosition = () => {
+    for (const key in map) {
+      if (map[key].type === 'greatThreat') {
+        return map[key];
+      }
+    }
+    return null;
+  };
+  
+  const greatThreat = getGreatThreatPosition();
+  
   // Get CSS class for tile type
   const getTileClass = (gridTile) => {
     if (!gridTile.tile) return 'tile-unknown';
@@ -135,10 +151,9 @@ const WorldMap = ({ map, currentPosition }) => {
   // Get icon for tile
   const getTileIcon = (gridTile) => {
     if (gridTile.isCurrentPosition) return '🧙‍♂️'; // Player icon
+    if (gridTile.isGreatThreat) return '☠️'; // Great Threat icon
     
     if (!gridTile.tile || !gridTile.isExplored) return '';
-    
-    if (gridTile.tile.type === 'greatThreat') return '☠️';
     
     // Show encounter indicators for explored tiles
     if (gridTile.tile.encounters && gridTile.tile.encounters.some(e => !e.resolved)) {
@@ -159,6 +174,16 @@ const WorldMap = ({ map, currentPosition }) => {
   
   return (
     <div className="world-map-container">
+      <h2 className="map-title">World Map</h2>
+      
+      {greatThreat && (
+        <div className="great-threat-indicator">
+          <span className="threat-icon">☠️</span>
+          <span className="threat-info">Great Threat: {greatThreat.threat?.name || "Unknown"}</span>
+          <span className="threat-location">Location: ({greatThreat.x}, {greatThreat.y})</span>
+        </div>
+      )}
+      
       <div className="map-controls">
         <button onClick={() => handlePan('up')}>⬆️</button>
         <div className="horizontal-controls">
@@ -178,7 +203,7 @@ const WorldMap = ({ map, currentPosition }) => {
                   key={`tile-${tile.x}-${tile.y}`}
                   className={`map-tile ${getTileClass(tile)} ${
                     tile.isCurrentPosition ? 'current-position' : ''
-                  } ${tile.isAdjacent ? 'adjacent' : ''}`}
+                  } ${tile.isGreatThreat ? 'great-threat' : ''} ${tile.isAdjacent ? 'adjacent' : ''}`}
                   onClick={() => handleTileClick(tile.x, tile.y)}
                   title={`(${tile.x}, ${tile.y}) ${tile.tile?.location?.name || 'Unknown'}`}
                 >
@@ -196,41 +221,44 @@ const WorldMap = ({ map, currentPosition }) => {
       </div>
       
       <div className="map-legend">
-        <div className="legend-item">
-          <div className="legend-icon">🧙‍♂️</div>
-          <div className="legend-label">You</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon tile-sample tile-arid"></div>
-          <div className="legend-label">Arid</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon tile-sample tile-water"></div>
-          <div className="legend-label">Water</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon tile-sample tile-forest"></div>
-          <div className="legend-label">Forest</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon tile-sample tile-mountain"></div>
-          <div className="legend-label">Mountain</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon">⚔️</div>
-          <div className="legend-label">Combat</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon">💰</div>
-          <div className="legend-label">Treasure</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon">❓</div>
-          <div className="legend-label">Situation</div>
-        </div>
-        <div className="legend-item">
-          <div className="legend-icon">☠️</div>
-          <div className="legend-label">Great Threat</div>
+        <div className="legend-title">Map Legend</div>
+        <div className="legend-grid">
+          <div className="legend-item">
+            <div className="legend-icon">🧙‍♂️</div>
+            <div className="legend-label">You</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon">☠️</div>
+            <div className="legend-label">Great Threat</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon tile-sample tile-arid"></div>
+            <div className="legend-label">Arid</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon tile-sample tile-water"></div>
+            <div className="legend-label">Water</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon tile-sample tile-forest"></div>
+            <div className="legend-label">Forest</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon tile-sample tile-mountain"></div>
+            <div className="legend-label">Mountain</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon">⚔️</div>
+            <div className="legend-label">Combat</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon">💰</div>
+            <div className="legend-label">Treasure</div>
+          </div>
+          <div className="legend-item">
+            <div className="legend-icon">❓</div>
+            <div className="legend-label">Situation</div>
+          </div>
         </div>
       </div>
     </div>
