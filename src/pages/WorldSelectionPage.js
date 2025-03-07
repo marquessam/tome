@@ -14,8 +14,14 @@ const WorldSelectionPage = () => {
   
   // Load saved worlds on component mount
   useEffect(() => {
-    const worlds = getSavedWorlds();
-    setSavedWorlds(worlds);
+    try {
+      const worlds = getSavedWorlds();
+      console.log('Loaded worlds:', worlds); // Debug log
+      setSavedWorlds(worlds || []);
+    } catch (err) {
+      console.error('Error loading saved worlds:', err);
+      setSavedWorlds([]); // Ensure we always have an array even on error
+    }
   }, [getSavedWorlds]);
   
   // Handle world creation
@@ -27,21 +33,35 @@ const WorldSelectionPage = () => {
       return;
     }
     
-    const newWorld = createWorld(worldName);
-    if (newWorld) {
-      navigate(`/worlds/${newWorld.id}/characters/new`);
+    try {
+      const newWorld = createWorld(worldName);
+      if (newWorld) {
+        navigate(`/worlds/${newWorld.id}/characters/new`);
+      } else {
+        alert('Failed to create world. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error creating world:', err);
+      alert(`Error creating world: ${err.message || 'Unknown error'}`);
     }
   };
   
   // Handle world selection
   const handleSelectWorld = (worldId) => {
-    const world = loadWorld(worldId);
-    if (world) {
-      if (world.characters.length > 0) {
-        navigate(`/worlds/${worldId}/characters`);
+    try {
+      const world = loadWorld(worldId);
+      if (world) {
+        if (world.characters && world.characters.length > 0) {
+          navigate(`/worlds/${worldId}/characters`);
+        } else {
+          navigate(`/worlds/${worldId}/characters/new`);
+        }
       } else {
-        navigate(`/worlds/${worldId}/characters/new`);
+        alert('Failed to load world. It may be corrupted or no longer exists.');
       }
+    } catch (err) {
+      console.error('Error loading world:', err);
+      alert(`Error loading world: ${err.message || 'Unknown error'}`);
     }
   };
   
@@ -57,6 +77,11 @@ const WorldSelectionPage = () => {
   };
   
   const randomCards = generateRandomCards(8);
+  
+  // Check if there's an error loading worlds, handle gracefully
+  if (error) {
+    console.error('Error in WorldSelectionPage:', error);
+  }
   
   return (
     <div className="world-selection-page">
@@ -74,7 +99,7 @@ const WorldSelectionPage = () => {
         {error && <div className="error-message">{error}</div>}
         
         <div className="worlds-section">
-          {savedWorlds.length > 0 ? (
+          {Array.isArray(savedWorlds) && savedWorlds.length > 0 ? (
             <>
               <h2>Continue Existing World</h2>
               <div className="world-list">
@@ -92,7 +117,7 @@ const WorldSelectionPage = () => {
               </div>
             </>
           ) : (
-            <p>No saved worlds found.</p>
+            <p className="no-worlds-message">No saved worlds found. Create your first world!</p>
           )}
           
           {showNewWorldForm ? (
