@@ -1,18 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import '../../styles/CharacterSheet.css';
 
 const CharacterSheet = ({ character }) => {
-  const { 
-    useItem, 
-    equipItem, 
-    unequipItem, 
-    levelUpCharacter,
-    canLevelUp
-  } = useGame();
+  // Get functions from game context
+  const gameContext = useGame();
   
+  // Use state for active tab
   const [activeTab, setActiveTab] = useState('stats'); // tabs: stats, inventory, abilities
   
+  // Create stable callback functions for actions
+  const handleLevelUp = useCallback(() => {
+    gameContext.levelUpCharacter();
+  }, [gameContext]);
+  
+  const handleEquipItem = useCallback((itemId) => {
+    gameContext.equipItem(itemId);
+  }, [gameContext]);
+  
+  const handleUnequipItem = useCallback((type) => {
+    gameContext.unequipItem(type);
+  }, [gameContext]);
+  
+  const handleUseItem = useCallback((itemId) => {
+    gameContext.useItem(itemId);
+  }, [gameContext]);
+  
+  // Early return if no character data
   if (!character) return <div>No character data available</div>;
   
   // Calculate stat modifier
@@ -39,10 +53,10 @@ const CharacterSheet = ({ character }) => {
           <div className="info-label">XP:</div>
           <div className="info-value">{formatXP()}</div>
         </div>
-        {canLevelUp() && (
+        {gameContext.canLevelUp() && (
           <button 
             className="level-up-button"
-            onClick={levelUpCharacter}
+            onClick={handleLevelUp}
           >
             Level Up!
           </button>
@@ -118,7 +132,7 @@ const CharacterSheet = ({ character }) => {
                   <span className="item-name">{character.equipped.weapon.name}</span>
                   <button 
                     className="unequip-button"
-                    onClick={() => unequipItem('weapon')}
+                    onClick={() => handleUnequipItem('weapon')}
                   >
                     Unequip
                   </button>
@@ -136,7 +150,7 @@ const CharacterSheet = ({ character }) => {
                   <span className="item-name">{character.equipped.armor.name}</span>
                   <button 
                     className="unequip-button"
-                    onClick={() => unequipItem('armor')}
+                    onClick={() => handleUnequipItem('armor')}
                   >
                     Unequip
                   </button>
@@ -194,7 +208,7 @@ const CharacterSheet = ({ character }) => {
                 {item.type === 'weapon' && (
                   <button 
                     className="equip-button"
-                    onClick={() => equipItem(item.id)}
+                    onClick={() => handleEquipItem(item.id)}
                     disabled={character.equipped?.weapon?.id === item.id}
                   >
                     {character.equipped?.weapon?.id === item.id ? 'Equipped' : 'Equip'}
@@ -203,7 +217,7 @@ const CharacterSheet = ({ character }) => {
                 {item.type === 'armor' && (
                   <button 
                     className="equip-button"
-                    onClick={() => equipItem(item.id)}
+                    onClick={() => handleEquipItem(item.id)}
                     disabled={character.equipped?.armor?.id === item.id}
                   >
                     {character.equipped?.armor?.id === item.id ? 'Equipped' : 'Equip'}
@@ -212,7 +226,7 @@ const CharacterSheet = ({ character }) => {
                 {item.type === 'consumable' && (
                   <button 
                     className="use-button"
-                    onClick={() => useItem(item.id)}
+                    onClick={() => handleUseItem(item.id)}
                   >
                     Use
                   </button>
