@@ -3,7 +3,7 @@ import { useGame } from '../../contexts/GameContext';
 import '../../styles/WorldMap.css';
 
 const WorldMap = ({ map, currentPosition }) => {
-  const { moveCharacter } = useGame();
+  const { moveCharacter, currentTile } = useGame();
   const [mapGrid, setMapGrid] = useState([]);
   const [mapBounds, setMapBounds] = useState({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
   const [center, setCenter] = useState({ x: 0, y: 0 });
