@@ -1,0 +1,192 @@
+.card-drawing-ceremony {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ceremony-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.ceremony-step h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.ceremony-step p {
+  color: #555;
+  line-height: 1.5;
+}
+
+.ceremony-button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.ceremony-button:hover {
+  background-color: #4fa8c9;
+  transform: translateY(-2px);
+}
+
+.ceremony-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.card-deck {
+  position: relative;
+  height: 250px;
+  width: 170px;
+  margin: 20px auto;
+}
+
+.card-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.5s ease;
+}
+
+.card-placeholder.animate-draw {
+  animation: drawCard 1s ease-in-out forwards;
+}
+
+@keyframes drawCard {
+  0% {
+    transform: translateY(-20px);
+  }
+  50% {
+    transform: translateY(30px) rotate(5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+
+.card-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.card-holder {
+  cursor: pointer;
+  transition: transform 0.5s ease-in-out;
+  transform-style: preserve-3d;
+  margin: 20px 0;
+}
+
+.card-holder.revealed {
+  transform: rotateY(360deg);
+}
+
+.race-info, .class-info {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #61dafb;
+  text-align: left;
+  max-width: 500px;
+}
+
+.race-info h3, .class-info h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.character-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.character-cards {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.race-card-summary, .class-card-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.race-card-summary h3, .class-card-summary h3 {
+  margin: 0;
+  color: #555;
+}
+
+.race-card-summary p, .class-card-summary p {
+  font-weight: bold;
+  margin: 5px 0 0 0;
+  color: #333;
+}
+
+.character-destiny {
+  background-color: #f0f7ff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.complete-button {
+  background-color: #4caf50;
+  color: white;
+  font-size: 1.2rem;
+  padding: 15px 40px;
+}
+
+.complete-button:hover {
+  background-color: #3c9f40;
+}
+
+@media (max-width: 768px) {
+  .card-drawing-ceremony {
+    padding: 20px;
+  }
+  
+  .ceremony-step h2 {
+    font-size: 1.5rem;
+  }
+  
+  .character-cards {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .card-reveal {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .character-summary {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .character-cards {
+    min-width: 300px;
+  }
+}
