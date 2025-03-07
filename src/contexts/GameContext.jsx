@@ -115,6 +115,33 @@ export const GameProvider = ({ children }) => {
       return null;
     }
   };
+
+  // Create character with specific race and class cards
+  const createCharacterWithCards = (worldId, characterName, raceCard, classCard) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Load the world first if not already loaded
+      let world = gameState;
+      if (!world || world.id !== worldId) {
+        world = GameEngine.loadGameState(worldId);
+        setGameState(world);
+      }
+      
+      // Create new character with the specific race and class cards (instead of random drawing)
+      const newCharacter = GameEngine.createCharacterWithCards(world, characterName, raceCard, classCard);
+      setGameState({...world});
+      setCurrentCharacter(newCharacter);
+      setLoading(false);
+      return newCharacter;
+    } catch (err) {
+      console.error('Failed to create character:', err);
+      setError('Failed to create character: ' + (err.message || String(err)));
+      setLoading(false);
+      return null;
+    }
+  };
   
   // Switch to a different character
   const switchCharacter = (characterId) => {
@@ -457,6 +484,7 @@ export const GameProvider = ({ children }) => {
     getSavedWorlds,
     // Character functions
     createCharacter,
+    createCharacterWithCards,
     switchCharacter,
     moveCharacter,
     levelUpCharacter,
